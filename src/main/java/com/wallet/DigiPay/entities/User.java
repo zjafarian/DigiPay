@@ -1,10 +1,13 @@
 package com.wallet.DigiPay.entities;
 
+import lombok.Builder;
+
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
+@Builder
 public class User extends BaseModel {
 
 
