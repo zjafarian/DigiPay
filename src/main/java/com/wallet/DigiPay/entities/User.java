@@ -3,13 +3,13 @@ package com.wallet.DigiPay.entities;
 import lombok.Builder;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
 @Builder
 public class User extends BaseModel {
-
 
 
     @Column(name = "use_name")
@@ -24,23 +24,27 @@ public class User extends BaseModel {
     @Column(name = "use_phone_number")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<RoleDetail> roleDetails;
 
 
-
-
-
     public User() {
+
     }
 
     public User(String name, String lastName, String nationalCode, String phoneNumber) {
+
+        super.setDateCreated(new Timestamp(System.currentTimeMillis()));
+        super.setDateModified(new Timestamp(System.currentTimeMillis()));
+        super.setDeleted(false);
+
+
+
         this.name = name;
         this.lastName = lastName;
         this.nationalCode = nationalCode;
         this.phoneNumber = phoneNumber;
     }
-
 
 
     public String getName() {

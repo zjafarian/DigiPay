@@ -1,5 +1,6 @@
 package com.wallet.DigiPay.entities;
 
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @MappedSuperclass
 @Getter
 @Setter
+
+
 public class BaseModel {
 
     @Id

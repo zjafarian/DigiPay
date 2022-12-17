@@ -1,6 +1,7 @@
 package com.wallet.DigiPay.services.base.impls;
 
 import com.wallet.DigiPay.repositories.base.BaseRepository;
+import com.wallet.DigiPay.services.base.BaseService;
 
 import java.io.Serializable;
 import java.util.List;
