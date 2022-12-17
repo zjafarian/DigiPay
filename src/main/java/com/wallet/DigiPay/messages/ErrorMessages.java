@@ -11,6 +11,9 @@ public class ErrorMessages {
     @Value("${national.code.not.valid}")
     private String MESSAGE_NOT_VALID_NATIONAL_CODE;
 
+    @Value("${phone.number.not.valid}")
+    private String MESSAGE_PHONE_IS_NOT_CORRECT;
+
 
     @Value("${phone.number.not.unique}")
     private String MESSAGE_PHONE_IS_EXISTED;
@@ -33,5 +36,9 @@ public class ErrorMessages {
 
     public String getMESSAGE_NULL_ENTRY() {
         return MESSAGE_NULL_ENTRY;
+    }
+
+    public String getMESSAGE_PHONE_IS_NOT_CORRECT() {
+        return MESSAGE_PHONE_IS_NOT_CORRECT;
     }
 }
