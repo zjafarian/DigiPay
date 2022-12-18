@@ -1,12 +1,14 @@
 package com.wallet.DigiPay.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "t_role")
+@Builder
 public class Role extends BaseModel{
 
 
@@ -39,6 +41,8 @@ public class Role extends BaseModel{
         this.description = description;
         this.roleType = roleType;
     }
+
+
 
     public RoleType getRoleType() {
         return roleType;

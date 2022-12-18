@@ -4,6 +4,7 @@ package com.wallet.DigiPay.services.impls;
 import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.Role;
+import com.wallet.DigiPay.entities.RoleDetail;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.*;
 import com.wallet.DigiPay.mapper.RoleMapper;
@@ -20,6 +21,7 @@ import com.wallet.DigiPay.utils.PhoneNumberValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -71,6 +73,8 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
 
     public User generateUser(UserRequestDto userRequestDto){
+
+
         return userMapper.toUser(userRequestDto);
     }
 
@@ -128,8 +132,14 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     }
 
     @Override
-    public void delete(Long aLong) {
-        super.delete(aLong);
+    public void delete(Long id) {
+        Optional<User> user = userRepository.findById(id);
+
+        if (!user.isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
+
+
+        userRepository.deleteById(id);
     }
 
     @Override

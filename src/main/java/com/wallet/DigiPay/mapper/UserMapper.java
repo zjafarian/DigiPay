@@ -11,27 +11,53 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
-    
 
-    public User toUser(UserRequestDto userRequestDto){
+
+    public User toUser(UserRequestDto userRequestDto) {
         User user = User.builder()
                 .nationalCode(userRequestDto.getNationalCode())
                 .phoneNumber(userRequestDto.getPhoneNumber())
                 .password(userRequestDto.getPassword())
                 .build();
 
-        user.setDateCreated(new Timestamp(System.currentTimeMillis()));
+        if (userRequestDto.getId() == null) {
+            user.setDateCreated(new Timestamp(System.currentTimeMillis()));
+            user.setDeleted(false);
+        }
+        if (userRequestDto.getName() != null)
+            user.setName(userRequestDto.getName());
+
+        if (userRequestDto.getLastName() != null)
+            user.setLastName(userRequestDto.getLastName());
+
         user.setDateModified(new Timestamp(System.currentTimeMillis()));
-        user.setDeleted(false);
+
+
+        if (userRequestDto.getRoles().size() != 0 && userRequestDto.getRoles() != null) {
+            user.setRoleDetails(userRequestDto
+                    .getRoles()
+                    .stream()
+                    .map(roleDto -> {
+                        Role roleGenerate = Role.builder()
+                                .roleType(roleDto.getRoleType())
+                                .description(roleDto.getDescription()).build();
+
+                        roleGenerate.setId(roleDto.getId());
+                        return  new RoleDetail(roleGenerate, user);
+                    })
+                    .collect(Collectors.toSet()));
+        }
+
 
         return user;
     }
 
 
-    public UserDto toUserDto(User user, List<RoleDto> roleDtos){
+    public UserDto toUserDto(User user, List<RoleDto> roleDtos) {
 
         return UserDto.builder()
                 .id(user.getId())

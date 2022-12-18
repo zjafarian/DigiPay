@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,9 +36,6 @@ public class UserController {
     UserServiceImpl userService;
 
 
-
-
-
     @PostMapping
     public ResponseEntity<ResponseMessage<?>> addUser(@Valid @RequestBody UserRequestDto userRequestDto)
             throws ConstraintViolationException,
@@ -48,27 +46,58 @@ public class UserController {
         User user = userService.generateUser(userRequestDto);
         userService.save(user);
 
-        ResponseMessage responseMessage = ResponseMessage.withResponseData(user, "user Created Successfully", "message");
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(user,
+                        "user Created Successfully",
+                        "message");
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseMessage<?>> getUser(@PathVariable Long id) throws NotFoundException, NullPointerException {
+    public ResponseEntity<ResponseMessage<?>> getUser(@PathVariable Long id)
+            throws NotFoundException, NullPointerException {
 
         Optional<User> user = userService.findById(id);
 
         UserDto userDto = userService.generateUserDto(user.get());
 
-        ResponseMessage responseMessage = ResponseMessage.withResponseData(userDto, "user find", "message");
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(userDto,
+                        "user find successful",
+                        "message");
 
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
     }
 
 
+    @PutMapping
+    public ResponseEntity<ResponseMessage<?>> updateUser(@RequestBody UserRequestDto userRequestDto)
+            throws NotFoundException, NullPointerException {
 
+        UserDto userDto = userService.generateUserDto(userService.generateUser(userRequestDto));
 
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(userDto,
+                        "update user successful",
+                        "message");
+
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseMessage<?>> deleteUser(@PathVariable Long id)
+            throws NotFoundException {
+
+        userService.delete(id);
+
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(null,
+                        "delete user successful",
+                        "message");
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
+    }
 
 
 }
