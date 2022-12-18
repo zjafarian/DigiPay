@@ -25,13 +25,6 @@ public class RoleServiceImpl extends BaseServiceImpl<Role,Long> implements RoleS
         this.roleRepository = roleRepository;
     }
 
-    public List<Role> findRoles(User user){
-        return findAllById(user
-                .getRoleDetails()
-                .stream()
-                .map(roleDetail -> roleDetail.getRoleDetailId().getRoleId())
-                .collect(Collectors.toList()));
-    }
 
 
     @Override

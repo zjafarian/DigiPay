@@ -34,14 +34,9 @@ public class UserController {
     @Autowired
     UserServiceImpl userService;
 
-    @Autowired
-    RoleServiceImpl roleService;
 
-    @Autowired
-    UserMapper userMapper;
 
-    @Autowired
-    RoleMapper roleMapper;
+
 
     @PostMapping
     public ResponseEntity<ResponseMessage<?>> addUser(@Valid @RequestBody UserRequestDto userRequestDto)
@@ -50,7 +45,7 @@ public class UserController {
             ExistPhoneNumberException,
             NationalCodeException {
 
-        User user = userMapper.toUser(userRequestDto);
+        User user = userService.generateUser(userRequestDto);
         userService.save(user);
 
         ResponseMessage responseMessage = ResponseMessage.withResponseData(user, "user Created Successfully", "message");
@@ -59,18 +54,21 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseMessage<?>> getUser(@PathVariable Long id) throws NotFoundException {
+    public ResponseEntity<ResponseMessage<?>> getUser(@PathVariable Long id) throws NotFoundException, NullPointerException {
 
         Optional<User> user = userService.findById(id);
 
-        UserDto userDto = userMapper.toUserDto(user.get(), roleMapper.toRoleDtos(roleService.findRoles(user.get())));
-
+        UserDto userDto = userService.generateUserDto(user.get());
 
         ResponseMessage responseMessage = ResponseMessage.withResponseData(userDto, "user find", "message");
 
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
     }
+
+
+
+
 
 
 }

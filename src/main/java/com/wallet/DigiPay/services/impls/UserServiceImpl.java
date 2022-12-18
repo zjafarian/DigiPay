@@ -1,9 +1,15 @@
 package com.wallet.DigiPay.services.impls;
 
 
+import com.wallet.DigiPay.dto.UserDto;
+import com.wallet.DigiPay.dto.UserRequestDto;
+import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.*;
+import com.wallet.DigiPay.mapper.RoleMapper;
+import com.wallet.DigiPay.mapper.UserMapper;
 import com.wallet.DigiPay.messages.ErrorMessages;
+import com.wallet.DigiPay.repositories.RoleRepository;
 import com.wallet.DigiPay.repositories.UserRepository;
 import com.wallet.DigiPay.repositories.base.BaseRepository;
 import com.wallet.DigiPay.services.UserService;
@@ -16,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -23,16 +30,52 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
 
     private UserRepository userRepository;
+    private RoleRepository roleRepository;
 
+    private UserMapper userMapper;
+    private RoleMapper roleMapper;
 
     private ErrorMessages errorMessages;
 
 
+
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ErrorMessages errorMessages) {
+    public UserServiceImpl(UserRepository userRepository,
+                           RoleRepository roleRepository,
+                           UserMapper userMapper,
+                           RoleMapper roleMapper,
+                           ErrorMessages errorMessages) {
+
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
+        this.roleMapper = roleMapper;
         this.errorMessages =errorMessages;
+
     }
+
+
+    public UserDto generateUserDto(User user){
+        List<Role>  roles = roleRepository.findAllById(user
+                .getRoleDetails()
+                .stream()
+                .map(roleDetail -> roleDetail.getRoleDetailId().getRoleId())
+                .collect(Collectors.toList()));
+
+        if (roles.size() == 0 || roles == null)
+            throw new NullPointerException();
+
+        return userMapper.toUserDto(user, roleMapper.toRoleDtos(roles));
+    }
+
+
+    public User generateUser(UserRequestDto userRequestDto){
+        return userMapper.toUser(userRequestDto);
+    }
+
+
+
 
     @Override
     protected BaseRepository<User, Long> getBaseRepository() {
