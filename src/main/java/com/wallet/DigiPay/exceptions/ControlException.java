@@ -25,6 +25,16 @@ public class ControlException {
     @Autowired
     private ErrorMessages errorMessages;
 
+    @ExceptionHandler
+    ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException exception) {
+        ErrorResponse er = new ErrorResponse();
+        er.setMessage(exception.getMessage());
+        er.setStatus(HttpStatus.NOT_FOUND.value());
+        er.setTimeStamp(System.currentTimeMillis());
+        return new ResponseEntity<ErrorResponse>(er, HttpStatus.BAD_REQUEST);
+
+    }
+
 
     @ExceptionHandler
     ResponseEntity<ErrorResponse> handleValidationPhoneNumber(ValidationPhoneNumberException exception) {
@@ -41,6 +51,17 @@ public class ControlException {
 
     @ExceptionHandler
     ResponseEntity<ErrorResponse> handleExistPhoneNumberException(ExistPhoneNumberException exception) {
+        ErrorResponse er = new ErrorResponse();
+        er.setMessage(exception.getMessage());
+        er.setStatus(HttpStatus.NOT_FOUND.value());
+        er.setTimeStamp(System.currentTimeMillis());
+
+        return new ResponseEntity<ErrorResponse>(er, HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+    @ExceptionHandler
+    ResponseEntity<ErrorResponse> handleValidationPassword(PasswordException exception) {
         ErrorResponse er = new ErrorResponse();
         er.setMessage(exception.getMessage());
         er.setStatus(HttpStatus.NOT_FOUND.value());

@@ -24,6 +24,9 @@ public class User extends BaseModel {
     @Column(name = "use_phone_number")
     private String phoneNumber;
 
+    @Column(name = "use_password")
+    private String password;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<RoleDetail> roleDetails;
 
@@ -32,7 +35,9 @@ public class User extends BaseModel {
 
     }
 
-    public User(String name, String lastName, String nationalCode, String phoneNumber) {
+
+
+    public User(String name, String lastName, String nationalCode, String phoneNumber,String password) {
 
         super.setDateCreated(new Timestamp(System.currentTimeMillis()));
         super.setDateModified(new Timestamp(System.currentTimeMillis()));
@@ -44,6 +49,7 @@ public class User extends BaseModel {
         this.lastName = lastName;
         this.nationalCode = nationalCode;
         this.phoneNumber = phoneNumber;
+        this.password = password;
     }
 
 
@@ -85,5 +91,13 @@ public class User extends BaseModel {
 
     public void setRoleDetails(Set<RoleDetail> roleDetails) {
         this.roleDetails = roleDetails;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

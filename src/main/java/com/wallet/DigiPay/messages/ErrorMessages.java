@@ -21,6 +21,12 @@ public class ErrorMessages {
     @Value("${entry.null}")
     private String MESSAGE_NULL_ENTRY;
 
+    @Value("${password.not.valid }")
+    private String MESSAGE_PASSWORD_NOT_VALID;
+
+    @Value("${not.found.user}")
+    private String MESSAGE_NOT_FOUND_USER;
+
 
 
     public ErrorMessages() {
@@ -40,5 +46,13 @@ public class ErrorMessages {
 
     public String getMESSAGE_PHONE_IS_NOT_CORRECT() {
         return MESSAGE_PHONE_IS_NOT_CORRECT;
+    }
+
+    public String getMESSAGE_PASSWORD_NOT_VALID() {
+        return MESSAGE_PASSWORD_NOT_VALID;
+    }
+
+    public String getMESSAGE_NOT_FOUND_USER() {
+        return MESSAGE_NOT_FOUND_USER;
     }
 }

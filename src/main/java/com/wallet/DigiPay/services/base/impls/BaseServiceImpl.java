@@ -45,4 +45,9 @@ public abstract class BaseServiceImpl<T,ID extends Serializable> implements Base
     public T update(T entity) {
         return getBaseRepository().save(entity);
     }
+
+    @Override
+    public List<T> findAllById(Iterable<ID> ids) {
+        return getBaseRepository().findAllById(ids);
+    }
 }

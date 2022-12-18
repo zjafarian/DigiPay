@@ -2,13 +2,14 @@ package com.wallet.DigiPay.services.impls;
 
 
 import com.wallet.DigiPay.entities.User;
-import com.wallet.DigiPay.exceptions.ExistPhoneNumberException;
-import com.wallet.DigiPay.exceptions.ValidationPhoneNumberException;
+import com.wallet.DigiPay.exceptions.*;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.UserRepository;
 import com.wallet.DigiPay.repositories.base.BaseRepository;
 import com.wallet.DigiPay.services.UserService;
 import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
+import com.wallet.DigiPay.utils.NationalCodeValidation;
+import com.wallet.DigiPay.utils.PasswordValidation;
 import com.wallet.DigiPay.utils.PhoneNumberValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,13 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
             throw new ExistPhoneNumberException(errorMessages.getMESSAGE_PHONE_IS_EXISTED());
 
 
-        //
+        //check pattern of nationalCode
+        if (!NationalCodeValidation.validationNationalCode(entity.getNationalCode()))
+            throw new NationalCodeException(errorMessages.getMESSAGE_NOT_VALID_NATIONAL_CODE());
+
+        //check password is valid or not
+        if (!PasswordValidation.validationPassword(entity.getPassword()))
+            throw new PasswordException(errorMessages.getMESSAGE_PASSWORD_NOT_VALID());
 
 
         return super.save(entity);
@@ -67,8 +74,14 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     }
 
     @Override
-    public Optional<User> findById(Long aLong) {
-        return super.findById(aLong);
+    public Optional<User> findById(Long id) {
+
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
+
+
+        return user;
     }
 
     @Override
@@ -79,5 +92,10 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     @Override
     public User update(User entity) {
         return super.update(entity);
+    }
+
+    @Override
+    public List<User> findAllById(Iterable<Long> ids) {
+        return userRepository.findAllById(ids);
     }
 }
