@@ -1,17 +1,12 @@
 package com.wallet.DigiPay.controller;
 
-import com.wallet.DigiPay.dto.RoleDto;
 import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.UserRequestDto;
-import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.ExistPhoneNumberException;
 import com.wallet.DigiPay.exceptions.NationalCodeException;
 import com.wallet.DigiPay.exceptions.NotFoundException;
-import com.wallet.DigiPay.mapper.RoleMapper;
-import com.wallet.DigiPay.mapper.UserMapper;
 import com.wallet.DigiPay.messages.ResponseMessage;
-import com.wallet.DigiPay.services.impls.RoleServiceImpl;
 import com.wallet.DigiPay.services.impls.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.constraints.Null;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -73,14 +65,18 @@ public class UserController {
 
 
     @PutMapping
-    public ResponseEntity<ResponseMessage<?>> updateUser(@RequestBody UserRequestDto userRequestDto)
+    public ResponseEntity<ResponseMessage<?>> updateUser(@Valid @RequestBody UserRequestDto userRequestDto)
             throws NotFoundException, NullPointerException {
 
-        UserDto userDto = userService.generateUserDto(userService.generateUser(userRequestDto));
+        User user = userService.update( userService.generateUser(userRequestDto));
+
+        UserDto userDto = userService.generateUserDto(user);
+
+
 
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(userDto,
-                        "update user successful",
+                        "updat(\"/{id}\")e user successful",
                         "message");
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);

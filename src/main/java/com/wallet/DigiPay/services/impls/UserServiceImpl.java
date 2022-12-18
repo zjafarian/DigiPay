@@ -4,11 +4,10 @@ package com.wallet.DigiPay.services.impls;
 import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.Role;
-import com.wallet.DigiPay.entities.RoleDetail;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.*;
-import com.wallet.DigiPay.mapper.RoleMapper;
-import com.wallet.DigiPay.mapper.UserMapper;
+import com.wallet.DigiPay.mapper.impl.RoleMapper;
+import com.wallet.DigiPay.mapper.impl.UserMapper;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.RoleRepository;
 import com.wallet.DigiPay.repositories.UserRepository;
@@ -21,7 +20,6 @@ import com.wallet.DigiPay.utils.PhoneNumberValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -74,7 +72,6 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
     public User generateUser(UserRequestDto userRequestDto){
 
-
         return userMapper.toUser(userRequestDto);
     }
 
@@ -88,7 +85,7 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
     @Override
     public List<User> findAll() {
-        return super.findAll();
+        return userRepository.findAll();
     }
 
     @Override
@@ -112,7 +109,7 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
             throw new PasswordException(errorMessages.getMESSAGE_PASSWORD_NOT_VALID());
 
 
-        return super.save(entity);
+        return userRepository.save(entity);
     }
 
     @Override
@@ -133,9 +130,7 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
     @Override
     public void delete(Long id) {
-        Optional<User> user = userRepository.findById(id);
-
-        if (!user.isPresent())
+        if (!userRepository.findById(id).isPresent())
             throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
 
 
@@ -144,7 +139,10 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
     @Override
     public User update(User entity) {
-        return super.update(entity);
+        if (!userRepository.findById(entity.getId()).isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
+
+        return userRepository.save(entity);
     }
 
     @Override

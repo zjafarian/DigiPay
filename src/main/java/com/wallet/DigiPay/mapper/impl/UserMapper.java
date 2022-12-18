@@ -1,4 +1,4 @@
-package com.wallet.DigiPay.mapper;
+package com.wallet.DigiPay.mapper.impl;
 
 import com.wallet.DigiPay.dto.RoleDto;
 import com.wallet.DigiPay.dto.UserDto;
@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
-
 
     public User toUser(UserRequestDto userRequestDto) {
         User user = User.builder()
@@ -56,7 +55,6 @@ public class UserMapper {
         return user;
     }
 
-
     public UserDto toUserDto(User user, List<RoleDto> roleDtos) {
 
         return UserDto.builder()
@@ -68,6 +66,5 @@ public class UserMapper {
                 .password(user.getPassword())
                 .roles(roleDtos).build();
     }
-
 
 }

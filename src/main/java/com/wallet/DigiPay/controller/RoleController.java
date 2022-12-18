@@ -1,5 +1,6 @@
 package com.wallet.DigiPay.controller;
 
+import com.wallet.DigiPay.dto.RoleRequestDto;
 import com.wallet.DigiPay.messages.ResponseMessage;
 import com.wallet.DigiPay.services.impls.RoleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,7 @@ public class RoleController {
     RoleServiceImpl roleService;
 
 
-   /* @PostMapping
-    public ResponseEntity<ResponseMessage<?>> createRole(@RequestBody )*/
+
 
 
 
