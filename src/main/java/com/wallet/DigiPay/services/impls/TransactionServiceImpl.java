@@ -39,23 +39,35 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
 
 
     public Transaction generateTransaction(TransactionRequestDto transactionRequestDto) {
+
         if (transactionRequestDto.getWallet() == null || transactionRequestDto.getTransactionType() == null)
             throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
 
-       switch (transactionRequestDto.getTransactionType()){
-           case Deposit: {
-               if (transactionRequestDto.getSource() == null || transactionRequestDto.getSource().length() ==0)
-                   throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
-           }
-           break;
+        switch (transactionRequestDto.getTransactionType()) {
+            case Deposit: {
+                if (transactionRequestDto.getSource() == null || transactionRequestDto.getSource().length() == 0)
+                    throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
+            }
+            break;
 
-           case Withdraw: {
-               if (transactionRequestDto.getDescription() == null ||
-                       transactionRequestDto.getDescription().length() ==0)
-                   throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
-           }
-           break;
-       }
+            case Withdraw: {
+                if (transactionRequestDto.getDescription() == null ||
+                        transactionRequestDto.getDescription().length() == 0)
+                    throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
+            }
+            break;
+
+            case TransferWTW: {
+                if ((transactionRequestDto.getSource() == null ||
+                        transactionRequestDto.getSource().length() == 0) &&
+                        (transactionRequestDto.getDescription() == null ||
+                                transactionRequestDto.getDescription().length() == 0))
+
+
+                    throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
+            }
+            break;
+        }
 
 
         return transactionMapper.mapToObject(transactionRequestDto);

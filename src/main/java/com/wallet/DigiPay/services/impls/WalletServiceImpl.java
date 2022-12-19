@@ -1,9 +1,11 @@
 package com.wallet.DigiPay.services.impls;
 
 
+import com.wallet.DigiPay.dto.TransactionRequestDto;
 import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.WalletDto;
 import com.wallet.DigiPay.entities.Role;
+import com.wallet.DigiPay.entities.Transaction;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
 import com.wallet.DigiPay.exceptions.*;
@@ -202,7 +204,6 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         checkBalance(balance);
 
 
-
         Wallet wallet = walletOptional.get();
 
         wallet.setBalance(balance);
@@ -212,9 +213,9 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     }
 
     @Override
-    public List<Wallet> TransferFromWalletToWallet(Double amount,
-                                           String walletNumberSource,
-                                           String walletNumberDestination) {
+    public List<Wallet> transferFromWalletToWallet(Double amount,
+                                                   String walletNumberSource,
+                                                   String walletNumberDestination) {
 
         Optional<Wallet> walletSource = walletRepository.findByWalletNumber(walletNumberSource);
 
@@ -253,6 +254,20 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         return Arrays.asList(walletS, walletD);
 
     }
+
+
+    public List<Transaction> generateTransactions(List<Wallet> wallets, TransactionRequestDto transactionRequestDto) {
+
+        if (Objects.equals(wallets.get(0).getUser().getId(), wallets.get(1).getUser().getId())) {
+
+
+        } else {
+
+        }
+        return null;
+
+    }
+
 
     private CalculateWithdraw<Double> calculateWithdraw = (a, b) -> a - b;
 

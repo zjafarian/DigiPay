@@ -1,5 +1,5 @@
 package com.wallet.DigiPay.entities;
 
 public enum TransactionType {
-    Deposit, Withdraw
+    Deposit, Withdraw,TransferWTW
 }

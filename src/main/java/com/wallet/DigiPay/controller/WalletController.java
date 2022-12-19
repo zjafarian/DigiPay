@@ -16,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -95,9 +97,8 @@ public class WalletController {
             TransactionException {
 
         Wallet wallet = walletService
-                .depositWallet(transactionRequestDto.getWallet().getAmount(),
+                .depositWallet(transactionRequestDto.getAmount(),
                         transactionRequestDto.getWallet().getId());
-
 
 
         Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
@@ -109,6 +110,7 @@ public class WalletController {
         transaction.setTransactionStatus(TransactionStatus.Success);
 
         transactionService.update(transaction);
+        walletService.update(wallet);
 
         WalletDto walletDto = walletService.generateWalletDto(wallet);
 
@@ -124,7 +126,6 @@ public class WalletController {
     }
 
 
-
     @PutMapping("/withdraw")
     public ResponseEntity<ResponseMessage<?>> withdrawWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
@@ -136,9 +137,8 @@ public class WalletController {
             TransactionException {
 
         Wallet wallet = walletService
-                .withdrawWallet(transactionRequestDto.getWallet().getAmount(),
+                .withdrawWallet(transactionRequestDto.getAmount(),
                         transactionRequestDto.getWallet().getId());
-
 
 
         Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
@@ -150,6 +150,7 @@ public class WalletController {
         transaction.setTransactionStatus(TransactionStatus.Success);
 
         transactionService.update(transaction);
+        walletService.update(wallet);
 
         WalletDto walletDto = walletService.generateWalletDto(wallet);
 
@@ -165,7 +166,6 @@ public class WalletController {
     }
 
 
-
     @PutMapping("/TransferFromWalletToWallet")
     public ResponseEntity<ResponseMessage<?>> transferFromWalletToWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
@@ -176,23 +176,45 @@ public class WalletController {
             CartNumberException,
             TransactionException {
 
-        Wallet wallet = walletService
-                .withdrawWallet(transactionRequestDto.getWallet().getAmount(),
-                        transactionRequestDto.getWallet().getId());
+        List<Wallet> wallets = walletService.transferFromWalletToWallet(transactionRequestDto.getAmount(),
+                transactionRequestDto.getSource(),
+                transactionRequestDto.getDestination());
 
 
 
-        Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
-        transaction.setUser(userService.findById(transactionRequestDto.getWallet().getUser().getId()).get());
-        transaction.setWallet(wallet);
+        transactionRequestDto.setTransactionType(TransactionType.Withdraw);
+        transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
+        transactionRequestDto.setDescription(wallets.get(1).getWalletNumber());
 
-        transaction = transactionService.save(transaction);
+        Transaction transaction1 = transactionService.generateTransaction(transactionRequestDto);
+        transaction1.setUser(userService.findById(wallets.get(0).getUser().getId()).get());
+        transaction1.setWallet(wallets.get(0));
 
-        transaction.setTransactionStatus(TransactionStatus.Success);
 
-        transactionService.update(transaction);
+        transactionRequestDto.setTransactionType(TransactionType.Deposit);
+        transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
+        transactionRequestDto.setDescription(wallets.get(1).getWalletNumber());
 
-        WalletDto walletDto = walletService.generateWalletDto(wallet);
+        Transaction transaction2 = transactionService.generateTransaction(transactionRequestDto);
+        transaction2.setUser(userService.findById(wallets.get(1).getUser().getId()).get());
+        transaction2.setWallet(wallets.get(1));
+
+        transaction1 = transactionService.save(transaction1);
+        transaction2 = transactionService.save(transaction2);
+
+        transaction1.setTransactionStatus(TransactionStatus.Success);
+        transaction2.setTransactionStatus(TransactionStatus.Success);
+
+        transactionService.update(transaction1);
+        transactionService.update(transaction2);
+
+        walletService.update(wallets.get(0));
+        walletService.update(wallets.get(1));
+
+        WalletDto walletDto = walletService.generateWalletDto(wallets.get(0));
+
+
+
 
 
         ResponseMessage responseMessage = ResponseMessage

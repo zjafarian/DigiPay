@@ -20,6 +20,8 @@ public class TransactionRequestDto {
 
     private String destination;
 
+    private Double amount;
+
     @NotNull
     private TransactionType transactionType;
 

@@ -26,8 +26,6 @@ public class WalletDto {
 
     private UserDto user;
 
-    private Double amount;
-
     private String walletNumber;
 
     private Boolean isActive;
