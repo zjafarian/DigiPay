@@ -1,8 +1,8 @@
-package com.wallet.DigiPay.services.impls.mapper.impl;
+package com.wallet.DigiPay.mapper.impl;
 
 import com.wallet.DigiPay.dto.WalletDto;
 import com.wallet.DigiPay.entities.Wallet;
-import com.wallet.DigiPay.services.impls.mapper.WalletMapper;
+import com.wallet.DigiPay.mapper.WalletMapper;
 import org.springframework.stereotype.Component;
 
 @Component

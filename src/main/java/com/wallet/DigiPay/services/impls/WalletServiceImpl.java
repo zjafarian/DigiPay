@@ -8,9 +8,9 @@ import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
 import com.wallet.DigiPay.exceptions.*;
 import com.wallet.DigiPay.repositories.TransactionRepository;
-import com.wallet.DigiPay.services.impls.mapper.impl.RoleMapper;
-import com.wallet.DigiPay.services.impls.mapper.impl.UserMapper;
-import com.wallet.DigiPay.services.impls.mapper.impl.WalletMapperImpl;
+import com.wallet.DigiPay.mapper.impl.RoleMapper;
+import com.wallet.DigiPay.mapper.impl.UserMapper;
+import com.wallet.DigiPay.mapper.impl.WalletMapperImpl;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.RoleRepository;
 import com.wallet.DigiPay.repositories.UserRepository;
@@ -107,7 +107,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
             throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
 
         if (entity.getBalance() < 0)
-            throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
+            throw new AmountException(errorMessages.getMESSAGE_LESS_THAN_ZERO_AMOUNT());
 
         if (entity.getBalance() == null)
             entity.setBalance(0.0);
@@ -170,6 +170,9 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
 
         if (amount < 0)
+            throw new AmountException(errorMessages.getMESSAGE_LESS_THAN_ZERO_AMOUNT());
+
+        if (amount == 0)
             throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
 
         Double balance = walletOptional.get().getBalance() + amount;
@@ -183,7 +186,33 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
     @Override
     public Wallet withdrawWallet(Double amount, Long walletId) {
-        return null;
+
+        Optional<Wallet> walletOptional = findById(walletId);
+        if (!walletOptional.isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
+        if (!walletOptional.get().getActive())
+            throw new WalletActiveException(errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+
+        if (amount < 0)
+            throw new AmountException(errorMessages.getMESSAGE_LESS_THAN_ZERO_AMOUNT());
+
+        if (amount == 0)
+            throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
+
+        Double balance = walletOptional.get().getBalance() - amount;
+
+        if (balance < 0)
+            throw new AmountException(errorMessages.getMESSAGE_WALLET_BALANCE());
+
+        Wallet wallet = walletOptional.get();
+
+        wallet.setBalance(balance);
+
+
+
+
+        return wallet;
     }
 
     @Override

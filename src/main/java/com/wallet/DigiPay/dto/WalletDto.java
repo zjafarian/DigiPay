@@ -28,6 +28,8 @@ public class WalletDto {
 
     private Double amount;
 
+    private String walletNumber;
+
     private Boolean isActive;
 
 }

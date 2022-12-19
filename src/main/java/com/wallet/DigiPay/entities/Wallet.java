@@ -80,4 +80,6 @@ public class Wallet extends BaseModel{
     public void setUser(User user) {
         this.user = user;
     }
+
+
 }

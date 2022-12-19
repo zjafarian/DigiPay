@@ -1,12 +1,13 @@
 package com.wallet.DigiPay.controller;
 
+import com.wallet.DigiPay.dto.TransactionRequestDto;
 import com.wallet.DigiPay.dto.WalletDto;
-import com.wallet.DigiPay.entities.Wallet;
-import com.wallet.DigiPay.exceptions.AmountException;
-import com.wallet.DigiPay.exceptions.NotFoundException;
-import com.wallet.DigiPay.exceptions.WalletActiveException;
+import com.wallet.DigiPay.entities.*;
+import com.wallet.DigiPay.exceptions.*;
 import com.wallet.DigiPay.messages.ResponseMessage;
 import com.wallet.DigiPay.services.TransactionService;
+import com.wallet.DigiPay.services.impls.TransactionServiceImpl;
+import com.wallet.DigiPay.services.impls.UserServiceImpl;
 import com.wallet.DigiPay.services.impls.WalletServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,10 @@ public class WalletController {
     WalletServiceImpl walletService;
 
     @Autowired
-    TransactionService transactionService;
+    TransactionServiceImpl transactionService;
+
+    @Autowired
+    UserServiceImpl userService;
 
 
     @PostMapping
@@ -70,7 +74,6 @@ public class WalletController {
         walletDto = walletService.generateWalletDto(wallet);
 
 
-
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(walletDto,
                         "wallet Created Successfully",
@@ -81,25 +84,81 @@ public class WalletController {
     }
 
 
-
     @PutMapping("/deposit")
-    public ResponseEntity<ResponseMessage<?>> depositWallet(@Valid @RequestBody WalletDto walletDto)
-    throws NotFoundException, WalletActiveException, AmountException {
+    public ResponseEntity<ResponseMessage<?>> depositWallet
+            (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
+            throws NotFoundException,
+            NullPointerException,
+            WalletActiveException,
+            AmountException,
+            CartNumberException,
+            TransactionException {
 
-        Wallet wallet = walletService.depositWallet(walletDto.getAmount(),walletDto.getId());
+        Wallet wallet = walletService
+                .depositWallet(transactionRequestDto.getWallet().getAmount(),
+                        transactionRequestDto.getWallet().getId());
 
 
 
+        Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
+        transaction.setUser(userService.findById(transactionRequestDto.getWallet().getUser().getId()).get());
+        transaction.setWallet(wallet);
 
+        transaction = transactionService.save(transaction);
 
+        transaction.setTransactionStatus(TransactionStatus.Success);
 
+        transactionService.update(transaction);
 
+        WalletDto walletDto = walletService.generateWalletDto(wallet);
 
 
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(walletDto,
-                        "wallet Created Successfully",
+                        "The wallet has been successfully upgraded",
                         "message");
+
+
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
+
+    }
+
+
+
+    @PutMapping("/withdraw")
+    public ResponseEntity<ResponseMessage<?>> withdrawWallet
+            (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
+            throws NotFoundException,
+            NullPointerException,
+            WalletActiveException,
+            AmountException,
+            CartNumberException,
+            TransactionException {
+
+        Wallet wallet = walletService
+                .withdrawWallet(transactionRequestDto.getWallet().getAmount(),
+                        transactionRequestDto.getWallet().getId());
+
+
+
+        Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
+        transaction.setUser(userService.findById(transactionRequestDto.getWallet().getUser().getId()).get());
+        transaction.setWallet(wallet);
+
+        transaction = transactionService.save(transaction);
+
+        transaction.setTransactionStatus(TransactionStatus.Success);
+
+        transactionService.update(transaction);
+
+        WalletDto walletDto = walletService.generateWalletDto(wallet);
+
+
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(walletDto,
+                        "The withdrawal from the wallet was successful",
+                        "message");
+
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
 

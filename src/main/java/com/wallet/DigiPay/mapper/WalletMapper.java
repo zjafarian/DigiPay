@@ -1,4 +1,4 @@
-package com.wallet.DigiPay.services.impls.mapper;
+package com.wallet.DigiPay.mapper;
 
 
 import com.wallet.DigiPay.dto.WalletDto;

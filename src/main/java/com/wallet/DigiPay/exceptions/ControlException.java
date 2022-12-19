@@ -59,6 +59,29 @@ public class ControlException {
     }
 
     @ExceptionHandler
+    ResponseEntity<ErrorResponse> handleTransaction(TransactionException exception) {
+        ErrorResponse er = new ErrorResponse();
+        er.setMessage(exception.getMessage());
+        er.setStatus(HttpStatus.NOT_FOUND.value());
+        er.setTimeStamp(System.currentTimeMillis());
+
+        return new ResponseEntity<ErrorResponse>(er, HttpStatus.BAD_REQUEST);
+
+    }
+
+
+    @ExceptionHandler
+    ResponseEntity<ErrorResponse> handleCartNumber(CartNumberException exception) {
+        ErrorResponse er = new ErrorResponse();
+        er.setMessage(exception.getMessage());
+        er.setStatus(HttpStatus.NOT_FOUND.value());
+        er.setTimeStamp(System.currentTimeMillis());
+
+        return new ResponseEntity<ErrorResponse>(er, HttpStatus.BAD_REQUEST);
+
+    }
+
+    @ExceptionHandler
     ResponseEntity<ErrorResponse> handleAmountWallet(AmountException exception) {
         ErrorResponse er = new ErrorResponse();
         er.setMessage(exception.getMessage());
