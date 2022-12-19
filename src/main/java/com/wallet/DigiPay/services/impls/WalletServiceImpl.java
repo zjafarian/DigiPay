@@ -22,8 +22,7 @@ import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -189,36 +188,100 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
         Optional<Wallet> walletOptional = findById(walletId);
         if (!walletOptional.isPresent())
-            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+            notFoundWallet(walletOptional.get().getWalletNumber() + " :" + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
 
         if (!walletOptional.get().getActive())
-            throw new WalletActiveException(errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+            deActiveWallet(walletOptional.get().getWalletNumber() + " :" + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
-        if (amount < 0)
-            throw new AmountException(errorMessages.getMESSAGE_LESS_THAN_ZERO_AMOUNT());
 
-        if (amount == 0)
-            throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
+        checkAmount(amount);
 
-        Double balance = walletOptional.get().getBalance() - amount;
+        Double balance = calculateWithdraw.calculateWithdraw(walletOptional.get().getBalance(), amount);
 
-        if (balance < 0)
-            throw new AmountException(errorMessages.getMESSAGE_WALLET_BALANCE());
+        checkBalance(balance);
+
+
 
         Wallet wallet = walletOptional.get();
 
         wallet.setBalance(balance);
 
 
-
-
         return wallet;
     }
 
     @Override
-    public void TransferFromWalletToWallet(Double amount, Long walletId) {
+    public List<Wallet> TransferFromWalletToWallet(Double amount,
+                                           String walletNumberSource,
+                                           String walletNumberDestination) {
+
+        Optional<Wallet> walletSource = walletRepository.findByWalletNumber(walletNumberSource);
+
+        Optional<Wallet> walletDestination = walletRepository.findByWalletNumber(walletNumberDestination);
+
+        //check source wallet is existed or not
+        if (!walletSource.isPresent())
+            notFoundWallet(walletNumberSource + ": " + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
+
+        //check source wallet is active or not
+        if (!walletSource.get().getActive())
+            deActiveWallet(walletNumberSource + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+
+
+        //check destination wallet is existed or not
+        if (!walletDestination.isPresent())
+            notFoundWallet(walletNumberDestination + ": " + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
+
+        //check destination wallet is active or not
+        if (!walletDestination.get().getActive())
+            deActiveWallet(walletNumberDestination + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+
+
+        checkAmount(amount);
+        Double balance = calculateWithdraw.calculateWithdraw(walletSource.get().getBalance(), amount);
+
+        checkBalance(balance);
+
+        Wallet walletS = walletSource.get();
+        walletS.setBalance(balance);
+        Wallet walletD = walletDestination.get();
+        walletD.setBalance(walletD.getBalance() + amount);
+
+        return Arrays.asList(walletS, walletD);
 
     }
 
+    private CalculateWithdraw<Double> calculateWithdraw = (a, b) -> a - b;
 
+    private void checkAmount(Double amount) {
+        if (amount < 0)
+            throw new AmountException(errorMessages.getMESSAGE_LESS_THAN_ZERO_AMOUNT());
+
+        if (amount == 0)
+            throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
+    }
+
+    private void checkBalance(Double balance) {
+        if (balance < 0)
+            throw new AmountException(errorMessages.getMESSAGE_WALLET_BALANCE());
+    }
+
+    private void notFoundWallet(String message) {
+        throw new NotFoundException(message);
+    }
+
+    private void deActiveWallet(String message) {
+        throw new WalletActiveException(message);
+    }
+
+
+}
+
+
+@FunctionalInterface
+interface CalculateWithdraw<T> {
+    T calculateWithdraw(T a, T b);
 }

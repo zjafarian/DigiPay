@@ -119,7 +119,7 @@ public class WalletController {
                         "message");
 
 
-        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
 
     }
 
@@ -127,6 +127,47 @@ public class WalletController {
 
     @PutMapping("/withdraw")
     public ResponseEntity<ResponseMessage<?>> withdrawWallet
+            (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
+            throws NotFoundException,
+            NullPointerException,
+            WalletActiveException,
+            AmountException,
+            CartNumberException,
+            TransactionException {
+
+        Wallet wallet = walletService
+                .withdrawWallet(transactionRequestDto.getWallet().getAmount(),
+                        transactionRequestDto.getWallet().getId());
+
+
+
+        Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
+        transaction.setUser(userService.findById(transactionRequestDto.getWallet().getUser().getId()).get());
+        transaction.setWallet(wallet);
+
+        transaction = transactionService.save(transaction);
+
+        transaction.setTransactionStatus(TransactionStatus.Success);
+
+        transactionService.update(transaction);
+
+        WalletDto walletDto = walletService.generateWalletDto(wallet);
+
+
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(walletDto,
+                        "The withdrawal from the wallet was successful",
+                        "message");
+
+
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
+
+    }
+
+
+
+    @PutMapping("/TransferFromWalletToWallet")
+    public ResponseEntity<ResponseMessage<?>> transferFromWalletToWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
             throws NotFoundException,
             NullPointerException,

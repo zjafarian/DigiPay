@@ -5,6 +5,8 @@ import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
 import com.wallet.DigiPay.services.base.BaseService;
 
+import java.util.List;
+
 public interface WalletService extends BaseService<Wallet,Long> {
 
 
@@ -15,7 +17,9 @@ public interface WalletService extends BaseService<Wallet,Long> {
     Wallet withdrawWallet(Double amount,Long walletId);
 
     //Transfer money from one wallet to another wallet
-    void TransferFromWalletToWallet(Double amount, Long walletId);
+    List<Wallet> TransferFromWalletToWallet(Double amount,
+                                            String walletNumberSource,
+                                            String walletNumberDestination);
 
 
 
