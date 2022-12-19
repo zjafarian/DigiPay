@@ -1,9 +1,8 @@
-package com.wallet.DigiPay.mapper.impl;
+package com.wallet.DigiPay.services.impls.mapper.impl;
 
 
 
-import com.wallet.DigiPay.mapper.BaseMapper;
-
+import com.wallet.DigiPay.services.impls.mapper.BaseMapper;
 
 
 public abstract class BaseMapperImpl<DTO,OBJ> implements BaseMapper<DTO,OBJ> {

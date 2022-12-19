@@ -1,13 +1,12 @@
 package com.wallet.DigiPay.controller;
 
-import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.WalletDto;
-import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
-import com.wallet.DigiPay.exceptions.BalanceException;
+import com.wallet.DigiPay.exceptions.AmountException;
 import com.wallet.DigiPay.exceptions.NotFoundException;
+import com.wallet.DigiPay.exceptions.WalletActiveException;
 import com.wallet.DigiPay.messages.ResponseMessage;
-import com.wallet.DigiPay.services.impls.UserServiceImpl;
+import com.wallet.DigiPay.services.TransactionService;
 import com.wallet.DigiPay.services.impls.WalletServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,10 +26,13 @@ public class WalletController {
     @Autowired
     WalletServiceImpl walletService;
 
+    @Autowired
+    TransactionService transactionService;
+
 
     @PostMapping
     public ResponseEntity<ResponseMessage<?>> addWallet(@Valid @RequestBody WalletDto walletDto)
-            throws NullPointerException, BalanceException {
+            throws NullPointerException, AmountException {
 
         Wallet wallet = walletService.save(walletService.generateWallet(walletDto));
 
@@ -66,6 +68,31 @@ public class WalletController {
 
         Wallet wallet = walletService.update(walletService.generateWallet(walletDto));
         walletDto = walletService.generateWalletDto(wallet);
+
+
+
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(walletDto,
+                        "wallet Created Successfully",
+                        "message");
+
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
+
+    }
+
+
+
+    @PutMapping("/deposit")
+    public ResponseEntity<ResponseMessage<?>> depositWallet(@Valid @RequestBody WalletDto walletDto)
+    throws NotFoundException, WalletActiveException, AmountException {
+
+        Wallet wallet = walletService.depositWallet(walletDto.getAmount(),walletDto.getId());
+
+
+
+
+
+
 
 
 

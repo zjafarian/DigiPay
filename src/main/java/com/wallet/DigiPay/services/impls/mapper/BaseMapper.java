@@ -1,4 +1,4 @@
-package com.wallet.DigiPay.mapper;
+package com.wallet.DigiPay.services.impls.mapper;
 
 
 import org.mapstruct.Mapper;

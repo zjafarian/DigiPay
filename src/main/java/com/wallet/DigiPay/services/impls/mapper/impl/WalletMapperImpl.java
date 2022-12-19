@@ -1,11 +1,9 @@
-package com.wallet.DigiPay.mapper.impl;
+package com.wallet.DigiPay.services.impls.mapper.impl;
 
 import com.wallet.DigiPay.dto.WalletDto;
 import com.wallet.DigiPay.entities.Wallet;
-import com.wallet.DigiPay.mapper.WalletMapper;
+import com.wallet.DigiPay.services.impls.mapper.WalletMapper;
 import org.springframework.stereotype.Component;
-
-import java.sql.Timestamp;
 
 @Component
 public class WalletMapperImpl extends BaseMapperImpl<WalletDto, Wallet> implements WalletMapper {
@@ -22,12 +20,11 @@ public class WalletMapperImpl extends BaseMapperImpl<WalletDto, Wallet> implemen
         wallet.setTitle(walletDto.getTitle());
 
         if (walletDto.getId() == null){
-            wallet.setDateCreated(new Timestamp(System.currentTimeMillis()));
+
             wallet.setDeleted(false);
             wallet.setActive(true);
         }
 
-        wallet.setDateModified(new Timestamp(System.currentTimeMillis()));
         wallet.setActive(walletDto.getIsActive());
 
 

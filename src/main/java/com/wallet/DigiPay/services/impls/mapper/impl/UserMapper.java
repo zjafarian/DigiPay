@@ -1,4 +1,4 @@
-package com.wallet.DigiPay.mapper.impl;
+package com.wallet.DigiPay.services.impls.mapper.impl;
 
 import com.wallet.DigiPay.dto.RoleDto;
 import com.wallet.DigiPay.dto.UserDto;
@@ -24,7 +24,6 @@ public class UserMapper {
                 .build();
 
         if (userRequestDto.getId() == null) {
-            user.setDateCreated(new Timestamp(System.currentTimeMillis()));
             user.setDeleted(false);
         }
         if (userRequestDto.getName() != null)
@@ -33,7 +32,6 @@ public class UserMapper {
         if (userRequestDto.getLastName() != null)
             user.setLastName(userRequestDto.getLastName());
 
-        user.setDateModified(new Timestamp(System.currentTimeMillis()));
 
 
         if (userRequestDto.getRoles().size() != 0 && userRequestDto.getRoles() != null) {

@@ -30,8 +30,11 @@ public class ErrorMessages {
     @Value("${not.found.wallet}")
     private String MESSAGE_NOT_FOUND_WALLET;
 
-    @Value("${balance.zero.error}")
-    private String MESSAGE_ZERO_BALANCE;
+    @Value("${amount.zero.error}")
+    private String MESSAGE_ZERO_AMOUNT;
+
+    @Value("${de.active.wallet.error}")
+    private String MESSAGE_DE_ACTIVE_WALLET;
 
 
 
@@ -62,11 +65,15 @@ public class ErrorMessages {
         return MESSAGE_NOT_FOUND_USER;
     }
 
-    public String getMESSAGE_ZERO_BALANCE() {
-        return MESSAGE_ZERO_BALANCE;
+    public String getMESSAGE_ZERO_AMOUNT() {
+        return MESSAGE_ZERO_AMOUNT;
     }
 
     public String getMESSAGE_NOT_FOUND_WALLET() {
         return MESSAGE_NOT_FOUND_WALLET;
+    }
+
+    public String getMESSAGE_DE_ACTIVE_WALLET() {
+        return MESSAGE_DE_ACTIVE_WALLET;
     }
 }

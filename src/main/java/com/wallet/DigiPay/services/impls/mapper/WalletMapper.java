@@ -1,10 +1,8 @@
-package com.wallet.DigiPay.mapper;
+package com.wallet.DigiPay.services.impls.mapper;
 
 
 import com.wallet.DigiPay.dto.WalletDto;
 import com.wallet.DigiPay.entities.Wallet;
-import org.mapstruct.Mapper;
-
 
 
 public interface WalletMapper extends BaseMapper<WalletDto, Wallet> {

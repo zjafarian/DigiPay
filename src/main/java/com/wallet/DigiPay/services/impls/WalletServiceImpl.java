@@ -4,41 +4,37 @@ package com.wallet.DigiPay.services.impls;
 import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.WalletDto;
 import com.wallet.DigiPay.entities.Role;
-import com.wallet.DigiPay.entities.Transaction;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
 import com.wallet.DigiPay.exceptions.*;
-import com.wallet.DigiPay.mapper.impl.RoleMapper;
-import com.wallet.DigiPay.mapper.impl.UserMapper;
-import com.wallet.DigiPay.mapper.impl.WalletMapperImpl;
+import com.wallet.DigiPay.repositories.TransactionRepository;
+import com.wallet.DigiPay.services.impls.mapper.impl.RoleMapper;
+import com.wallet.DigiPay.services.impls.mapper.impl.UserMapper;
+import com.wallet.DigiPay.services.impls.mapper.impl.WalletMapperImpl;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.RoleRepository;
-import com.wallet.DigiPay.repositories.TransactionRepository;
 import com.wallet.DigiPay.repositories.UserRepository;
 import com.wallet.DigiPay.repositories.WalletRepository;
 import com.wallet.DigiPay.repositories.base.BaseRepository;
 
 import com.wallet.DigiPay.services.WalletService;
 import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
-import com.wallet.DigiPay.utils.NationalCodeValidation;
-import com.wallet.DigiPay.utils.PasswordValidation;
-import com.wallet.DigiPay.utils.PhoneNumberValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.prefs.BackingStoreException;
 import java.util.stream.Collectors;
 
 
 @Service
-public class WalletServiceImpl extends BaseServiceImpl<Wallet,Long> implements WalletService {
+public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements WalletService {
 
 
     private WalletRepository walletRepository;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+    private TransactionRepository transactionRepository;
 
     private WalletMapperImpl walletMapper;
     private UserMapper userMapper;
@@ -52,19 +48,20 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet,Long> implements W
                              UserRepository userRepository,
                              WalletMapperImpl walletMapper,
                              RoleRepository roleRepository,
+                             TransactionRepository transactionRepository,
                              UserMapper userMapper,
                              RoleMapper roleMapper,
                              ErrorMessages errorMessages) {
         this.walletRepository = walletRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.transactionRepository = transactionRepository;
         this.walletMapper = walletMapper;
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
 
         this.errorMessages = errorMessages;
     }
-
 
 
     public Wallet generateWallet(WalletDto walletDto) {
@@ -79,13 +76,13 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet,Long> implements W
         if (!user.isPresent())
             throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
 
-        List<Role>  roles = roleRepository.findAllById(user.get()
+        List<Role> roles = roleRepository.findAllById(user.get()
                 .getRoleDetails()
                 .stream()
                 .map(roleDetail -> roleDetail.getRoleDetailId().getRoleId())
                 .collect(Collectors.toList()));
 
-        UserDto userDto = userMapper.toUserDto(user.get(),roleMapper.toRoleDtos(roles));
+        UserDto userDto = userMapper.toUserDto(user.get(), roleMapper.toRoleDtos(roles));
 
         walletDto.setUser(userDto);
 
@@ -110,12 +107,10 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet,Long> implements W
             throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
 
         if (entity.getBalance() < 0)
-            throw new BalanceException(errorMessages.getMESSAGE_ZERO_BALANCE());
+            throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
 
         if (entity.getBalance() == null)
             entity.setBalance(0.0);
-
-
 
 
         return walletRepository.save(entity);
@@ -162,6 +157,39 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet,Long> implements W
         return super.findAllById(longs);
     }
 
+    //Deposit money from the bank to the wallet
+    @Override
+    public Wallet depositWallet(Double amount, Long walletId) {
+
+        Optional<Wallet> walletOptional = findById(walletId);
+        if (!walletOptional.isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
+        if (!walletOptional.get().getActive())
+            throw new WalletActiveException(errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+
+
+        if (amount < 0)
+            throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
+
+        Double balance = walletOptional.get().getBalance() + amount;
+        Wallet wallet = walletOptional.get();
+        wallet.setBalance(balance);
+
+        return wallet;
+
+
+    }
+
+    @Override
+    public Wallet withdrawWallet(Double amount, Long walletId) {
+        return null;
+    }
+
+    @Override
+    public void TransferFromWalletToWallet(Double amount, Long walletId) {
+
+    }
 
 
 }
