@@ -17,8 +17,8 @@ public class ErrorMessages {
     private String MESSAGE_PHONE_IS_NOT_CORRECT;
 
 
-    @Value("${phone.number.not.unique}")
-    private String MESSAGE_PHONE_IS_EXISTED;
+    @Value("${national.code.not.unique}")
+    private String MESSAGE_NATIONAL_CODE_IS_EXIST;
 
     @Value("${entry.null}")
     private String MESSAGE_NULL_ENTRY;

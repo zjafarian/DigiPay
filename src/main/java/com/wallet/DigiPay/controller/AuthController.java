@@ -4,7 +4,7 @@ package com.wallet.DigiPay.controller;
 
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.User;
-import com.wallet.DigiPay.exceptions.ExistPhoneNumberException;
+import com.wallet.DigiPay.exceptions.ExistNationalCodeException;
 import com.wallet.DigiPay.exceptions.NationalCodeException;
 import com.wallet.DigiPay.messages.ResponseMessage;
 import com.wallet.DigiPay.security.*;
@@ -13,13 +13,16 @@ import com.wallet.DigiPay.services.impls.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
+@Validated
 public class AuthController {
 
     @Autowired
@@ -40,10 +43,10 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseMessage<?>> register(@RequestBody UserRequestDto userRequestDto)
+    public ResponseEntity<ResponseMessage<?>> register(@Valid @RequestBody UserRequestDto userRequestDto)
             throws ConstraintViolationException,
             NullPointerException,
-            ExistPhoneNumberException,
+            ExistNationalCodeException,
             NationalCodeException {
 
         //registering user

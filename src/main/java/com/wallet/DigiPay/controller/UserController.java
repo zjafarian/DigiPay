@@ -2,10 +2,7 @@ package com.wallet.DigiPay.controller;
 
 
 import com.wallet.DigiPay.dto.UserRequestDto;
-import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.User;
-import com.wallet.DigiPay.exceptions.ExistPhoneNumberException;
-import com.wallet.DigiPay.exceptions.NationalCodeException;
 import com.wallet.DigiPay.exceptions.NotFoundException;
 import com.wallet.DigiPay.messages.ResponseMessage;
 import com.wallet.DigiPay.services.impls.UserServiceImpl;
@@ -15,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.Optional;
 

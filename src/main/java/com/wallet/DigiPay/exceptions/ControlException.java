@@ -105,7 +105,7 @@ public class ControlException {
 
 
     @ExceptionHandler
-    ResponseEntity<ErrorResponse> handleExistPhoneNumberException(ExistPhoneNumberException exception) {
+    ResponseEntity<ErrorResponse> handleExistPhoneNumberException(ExistNationalCodeException exception) {
         ErrorResponse er = new ErrorResponse();
         er.setMessage(exception.getMessage());
         er.setStatus(HttpStatus.NOT_FOUND.value());

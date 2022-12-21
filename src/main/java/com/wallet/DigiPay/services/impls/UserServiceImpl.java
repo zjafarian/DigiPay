@@ -16,7 +16,6 @@ import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
 import com.wallet.DigiPay.utils.NationalCodeValidation;
 import com.wallet.DigiPay.utils.PasswordValidation;
 import com.wallet.DigiPay.utils.PhoneNumberValidation;
-import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -95,13 +94,14 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     @Override
     public User save(User entity) {
 
+
         //check pattern of phone number
         if (!PhoneNumberValidation.validationPhoneNumber(entity.getPhoneNumber()))
             throw new ValidationPhoneNumberException(errorMessages.getMESSAGE_PHONE_IS_NOT_CORRECT());
 
-        //check phone number of entity is existed in database or not
-        if (userRepository.findByPhoneNumber(entity.getPhoneNumber()).isPresent())
-            throw new ExistPhoneNumberException(errorMessages.getMESSAGE_PHONE_IS_EXISTED());
+        //check national code of entity is existed in database or not
+        if (userRepository.findByNationalCode(entity.getPhoneNumber()).isPresent())
+            throw new ExistNationalCodeException(errorMessages.getMESSAGE_NATIONAL_CODE_IS_EXIST());
 
 
         //check pattern of nationalCode
