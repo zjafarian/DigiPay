@@ -5,10 +5,12 @@ import com.wallet.DigiPay.dto.TransactionRequestDto;
 import com.wallet.DigiPay.entities.Transaction;
 import com.wallet.DigiPay.entities.TransactionStatus;
 import com.wallet.DigiPay.exceptions.CartNumberException;
+import com.wallet.DigiPay.exceptions.NotFoundException;
 import com.wallet.DigiPay.exceptions.TransactionException;
 import com.wallet.DigiPay.mapper.impl.TransactionMapperImpl;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.TransactionRepository;
+import com.wallet.DigiPay.repositories.WalletRepository;
 import com.wallet.DigiPay.repositories.base.BaseRepository;
 import com.wallet.DigiPay.services.TransactionService;
 import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
@@ -25,6 +27,7 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
 
 
     private TransactionRepository transactionRepository;
+    private WalletRepository walletRepository;
     private ErrorMessages errorMessages;
     private TransactionMapperImpl transactionMapper;
 
@@ -32,15 +35,18 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
     @Autowired
     public TransactionServiceImpl(TransactionRepository transactionRepository,
                                   ErrorMessages errorMessages,
+                                  WalletRepository walletRepository,
                                   TransactionMapperImpl transactionMapper) {
         this.transactionRepository = transactionRepository;
+        this.walletRepository = walletRepository;
+        this.transactionMapper = transactionMapper;
         this.errorMessages = errorMessages;
     }
 
 
     public Transaction generateTransaction(TransactionRequestDto transactionRequestDto) {
 
-        if (transactionRequestDto.getWallet() == null || transactionRequestDto.getTransactionType() == null)
+        if (transactionRequestDto.getWalletId() == null || transactionRequestDto.getTransactionType() == null)
             throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
 
         switch (transactionRequestDto.getTransactionType()) {
@@ -68,6 +74,8 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
             }
             break;
         }
+
+
 
 
         return transactionMapper.mapToObject(transactionRequestDto);
@@ -146,5 +154,16 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
     @Override
     public List<Transaction> findAllById(Iterable<Long> ids) {
         return transactionRepository.findAllById(ids);
+    }
+
+
+    @Override
+    public List<Transaction> getTransactions(Long walletId) {
+
+        if (!walletRepository.findById(walletId).isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
+
+        return transactionRepository.findByWalletId(walletId);
     }
 }

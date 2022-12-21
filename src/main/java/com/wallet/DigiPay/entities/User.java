@@ -8,7 +8,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
-@Builder
 public class User extends BaseModel {
 
 
@@ -27,8 +26,10 @@ public class User extends BaseModel {
     @Column(name = "use_password")
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<RoleDetail> roleDetails;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "use_role_id")
+    private Role role;
+
 
 
     public User() {
@@ -37,19 +38,16 @@ public class User extends BaseModel {
 
 
 
-    public User(String name, String lastName, String nationalCode, String phoneNumber,String password) {
+    public User(String name, String lastName, String nationalCode, String phoneNumber,String password,Role role) {
 
-        super.setDateCreated(new Timestamp(System.currentTimeMillis()));
-        super.setDateModified(new Timestamp(System.currentTimeMillis()));
         super.setDeleted(false);
-
-
 
         this.name = name;
         this.lastName = lastName;
         this.nationalCode = nationalCode;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.role = role;
     }
 
 
@@ -85,13 +83,6 @@ public class User extends BaseModel {
         this.phoneNumber = phoneNumber;
     }
 
-    public Set<RoleDetail> getRoleDetails() {
-        return roleDetails;
-    }
-
-    public void setRoleDetails(Set<RoleDetail> roleDetails) {
-        this.roleDetails = roleDetails;
-    }
 
     public String getPassword() {
         return password;
@@ -99,5 +90,13 @@ public class User extends BaseModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

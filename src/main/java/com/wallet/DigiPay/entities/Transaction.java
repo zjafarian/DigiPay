@@ -1,6 +1,8 @@
 package com.wallet.DigiPay.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "t_transaction")
@@ -27,6 +29,14 @@ public class Transaction extends BaseModel{
     @Column(name = "tra_destination")
     private String destination;
 
+    @Column(name = "tra_amount")
+    @NotNull
+    private Double amount;
+
+    @Column(name = "tra_wallet_balance")
+    @NotNull
+    private Double walletBalance;
+
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "tra_user_id")
@@ -44,20 +54,21 @@ public class Transaction extends BaseModel{
                        TransactionStatus transactionStatus,
                        String source,
                        String destination,
+                       Double amount,
+                       Double walletBalance,
                        User user,
                        Wallet wallet) {
-
 
         this.description = description;
         this.transactionType = transactionType;
         this.transactionStatus = transactionStatus;
         this.source = source;
         this.destination = destination;
+        this.amount = amount;
+        this.walletBalance = walletBalance;
         this.user = user;
         this.wallet = wallet;
     }
-
-
 
     public String getDescription() {
         return description;
@@ -113,5 +124,21 @@ public class Transaction extends BaseModel{
 
     public void setWallet(Wallet wallet) {
         this.wallet = wallet;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+    public Double getWalletBalance() {
+        return walletBalance;
+    }
+
+    public void setWalletBalance(Double walletBalance) {
+        this.walletBalance = walletBalance;
     }
 }

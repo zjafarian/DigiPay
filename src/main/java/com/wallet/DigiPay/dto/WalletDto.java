@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Validated
 @Getter
@@ -24,10 +25,12 @@ public class WalletDto {
 
     private Double balance;
 
-    private UserDto user;
+    @NotNull
+    private Long userId;
 
     private String walletNumber;
 
     private Boolean isActive;
+
 
 }

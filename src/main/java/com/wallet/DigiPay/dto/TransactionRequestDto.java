@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public class TransactionRequestDto {
 
     @NotNull
-    private WalletDto wallet;
+    private Long walletId;
 
     private String Description;
 

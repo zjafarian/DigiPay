@@ -8,7 +8,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "t_role")
-@Builder
 public class Role extends BaseModel{
 
 
@@ -22,15 +21,6 @@ public class Role extends BaseModel{
     @Enumerated(EnumType.STRING)
     @Column(name = "rol_type")
     private RoleType roleType;
-
-
-    @OneToMany(mappedBy = "role",cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<RoleDetail> roleDetails;
-
-
-
-
 
 
 
@@ -61,11 +51,4 @@ public class Role extends BaseModel{
     }
 
 
-    public Set<RoleDetail> getRoleDetails() {
-        return roleDetails;
-    }
-
-    public void setRoleDetails(Set<RoleDetail> roleDetails) {
-        this.roleDetails = roleDetails;
-    }
 }

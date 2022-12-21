@@ -5,7 +5,6 @@ import com.wallet.DigiPay.dto.WalletDto;
 import com.wallet.DigiPay.entities.*;
 import com.wallet.DigiPay.exceptions.*;
 import com.wallet.DigiPay.messages.ResponseMessage;
-import com.wallet.DigiPay.services.TransactionService;
 import com.wallet.DigiPay.services.impls.TransactionServiceImpl;
 import com.wallet.DigiPay.services.impls.UserServiceImpl;
 import com.wallet.DigiPay.services.impls.WalletServiceImpl;
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/wallets")
@@ -40,7 +39,17 @@ public class WalletController {
     public ResponseEntity<ResponseMessage<?>> addWallet(@Valid @RequestBody WalletDto walletDto)
             throws NullPointerException, AmountException {
 
-        Wallet wallet = walletService.save(walletService.generateWallet(walletDto));
+        User user = walletService.getUser(walletDto.getUserId());
+
+
+        Wallet wallet = walletService.generateWallet(walletDto);
+        wallet.setWalletNumber(UUID.randomUUID().toString());
+        wallet.setActive(true);
+        wallet.setUser(user);
+
+
+        walletService.save(wallet);
+
 
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(wallet,
@@ -90,24 +99,34 @@ public class WalletController {
     public ResponseEntity<ResponseMessage<?>> depositWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
             throws NotFoundException,
-            NullPointerException,
             WalletActiveException,
             AmountException,
             CartNumberException,
             TransactionException {
 
+
+
         Wallet wallet = walletService
                 .depositWallet(transactionRequestDto.getAmount(),
-                        transactionRequestDto.getWallet().getId());
+                        transactionRequestDto.getWalletId());
+
+
 
 
         Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
-        transaction.setUser(userService.findById(transactionRequestDto.getWallet().getUser().getId()).get());
+
+
+        transaction.setDestination(wallet.getWalletNumber());
+        transaction.setUser(userService.findById(wallet.getUser().getId()).get());
         transaction.setWallet(wallet);
+        transaction.setWalletBalance(wallet.getBalance());
+
+
+
+        transaction.setTransactionStatus(TransactionStatus.Success);
 
         transaction = transactionService.save(transaction);
 
-        transaction.setTransactionStatus(TransactionStatus.Success);
 
         transactionService.update(transaction);
         walletService.update(wallet);
@@ -138,11 +157,12 @@ public class WalletController {
 
         Wallet wallet = walletService
                 .withdrawWallet(transactionRequestDto.getAmount(),
-                        transactionRequestDto.getWallet().getId());
+                        transactionRequestDto.getWalletId());
 
+        transactionRequestDto.setSource(wallet.getWalletNumber());
 
         Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
-        transaction.setUser(userService.findById(transactionRequestDto.getWallet().getUser().getId()).get());
+        transaction.setUser(userService.findById(wallet.getUser().getId()).get());
         transaction.setWallet(wallet);
 
         transaction = transactionService.save(transaction);
@@ -166,20 +186,18 @@ public class WalletController {
     }
 
 
-    @PutMapping("/TransferFromWalletToWallet")
+    @PutMapping("/transferWalletToWallet")
     public ResponseEntity<ResponseMessage<?>> transferFromWalletToWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
             throws NotFoundException,
             NullPointerException,
             WalletActiveException,
             AmountException,
-            CartNumberException,
             TransactionException {
 
         List<Wallet> wallets = walletService.transferFromWalletToWallet(transactionRequestDto.getAmount(),
                 transactionRequestDto.getSource(),
                 transactionRequestDto.getDestination());
-
 
 
         transactionRequestDto.setTransactionType(TransactionType.Withdraw);
@@ -214,12 +232,9 @@ public class WalletController {
         WalletDto walletDto = walletService.generateWalletDto(wallets.get(0));
 
 
-
-
-
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(walletDto,
-                        "The withdrawal from the wallet was successful",
+                        "Transfer wallet to wallet was successful",
                         "message");
 
 

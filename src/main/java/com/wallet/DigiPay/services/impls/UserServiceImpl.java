@@ -1,13 +1,12 @@
 package com.wallet.DigiPay.services.impls;
 
 
-import com.wallet.DigiPay.dto.UserDto;
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.*;
-import com.wallet.DigiPay.mapper.impl.RoleMapper;
-import com.wallet.DigiPay.mapper.impl.UserMapper;
+import com.wallet.DigiPay.mapper.impl.RoleMapperImpl;
+import com.wallet.DigiPay.mapper.impl.UserMapperImpl;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.RoleRepository;
 import com.wallet.DigiPay.repositories.UserRepository;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -32,8 +30,8 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     private UserRepository userRepository;
     private RoleRepository roleRepository;
 
-    private UserMapper userMapper;
-    private RoleMapper roleMapper;
+    private UserMapperImpl userMapper;
+    private RoleMapperImpl roleMapper;
 
     private ErrorMessages errorMessages;
 
@@ -43,8 +41,8 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
-                           UserMapper userMapper,
-                           RoleMapper roleMapper,
+                           UserMapperImpl userMapper,
+                           RoleMapperImpl roleMapper,
                            ErrorMessages errorMessages) {
 
         this.userRepository = userRepository;
@@ -56,23 +54,20 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     }
 
 
-    public UserDto generateUserDto(User user){
-        List<Role>  roles = roleRepository.findAllById(user
-                .getRoleDetails()
-                .stream()
-                .map(roleDetail -> roleDetail.getRoleDetailId().getRoleId())
-                .collect(Collectors.toList()));
+    public UserRequestDto generateUserRequestDto(User user){
 
-        if (roles.size() == 0 || roles == null)
-            throw new NullPointerException();
-
-        return userMapper.toUserDto(user, roleMapper.toRoleDtos(roles));
+        return userMapper.mapToDTO(user);
     }
 
 
     public User generateUser(UserRequestDto userRequestDto){
 
-        return userMapper.toUser(userRequestDto);
+        if (userRequestDto.getRoleId() == null)
+            throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
+
+
+
+        return userMapper.mapToObject(userRequestDto);
     }
 
 
@@ -107,6 +102,12 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
         //check password is valid or not
         if (!PasswordValidation.validationPassword(entity.getPassword()))
             throw new PasswordException(errorMessages.getMESSAGE_PASSWORD_NOT_VALID());
+
+
+        if (entity.getRole() == null)
+            throw new PasswordException(errorMessages.getMESSAGE_NOT_FOUND_ROLE());
+
+
 
 
         return userRepository.save(entity);
@@ -148,5 +149,14 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     @Override
     public List<User> findAllById(Iterable<Long> ids) {
         return userRepository.findAllById(ids);
+    }
+
+    public Role findRole(Long roleId) {
+
+        Optional<Role> role = roleRepository.findById(roleId);
+        if (!role.isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_ROLE());
+
+        return role.get();
     }
 }

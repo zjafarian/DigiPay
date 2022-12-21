@@ -1,11 +1,12 @@
 package com.wallet.DigiPay.entities;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Entity
 @Table(name = "t_wallet")
-public class Wallet extends BaseModel{
+public class Wallet extends BaseModel {
 
     @Column(name = "wal_title")
     private String title;
@@ -14,10 +15,11 @@ public class Wallet extends BaseModel{
     private Double balance;
 
     @Column(name = "wal_number")
+    @NotNull
     private String walletNumber;
 
 
-    @Column(name = "wal_is_active")
+    @Column(name = "wal_is_active", columnDefinition = "tinyint(1) default 1")
     private Boolean isActive;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -25,20 +27,16 @@ public class Wallet extends BaseModel{
     private User user;
 
 
-
-
-
     public Wallet() {
     }
 
-    public Wallet(User user,String title, Double balance, Boolean isActive) {
-        walletNumber = UUID.randomUUID().toString();
+    public Wallet(User user, String title, Double balance, Boolean isActive) {
+
         this.user = user;
         this.title = title;
         this.balance = balance;
         this.isActive = isActive;
     }
-
 
 
     public String getTitle() {

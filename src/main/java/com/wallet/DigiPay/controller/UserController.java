@@ -1,7 +1,8 @@
 package com.wallet.DigiPay.controller;
 
-import com.wallet.DigiPay.dto.UserDto;
+
 import com.wallet.DigiPay.dto.UserRequestDto;
+import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.ExistPhoneNumberException;
 import com.wallet.DigiPay.exceptions.NationalCodeException;
@@ -36,7 +37,12 @@ public class UserController {
             NationalCodeException {
 
         User user = userService.generateUser(userRequestDto);
+        Role role = userService.findRole(userRequestDto.getRoleId());
+
+        user.setRole(role);
+
         userService.save(user);
+
 
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(user,
@@ -52,10 +58,12 @@ public class UserController {
 
         Optional<User> user = userService.findById(id);
 
-        UserDto userDto = userService.generateUserDto(user.get());
+        UserRequestDto  userRequestDto= userService.generateUserRequestDto(user.get());
+
+
 
         ResponseMessage responseMessage = ResponseMessage
-                .withResponseData(userDto,
+                .withResponseData(userRequestDto,
                         "user find successful",
                         "message");
 
@@ -68,14 +76,14 @@ public class UserController {
     public ResponseEntity<ResponseMessage<?>> updateUser(@Valid @RequestBody UserRequestDto userRequestDto)
             throws NotFoundException, NullPointerException {
 
-        User user = userService.update( userService.generateUser(userRequestDto));
+        User user = userService.update(userService.generateUser(userRequestDto));
 
-        UserDto userDto = userService.generateUserDto(user);
+
 
 
 
         ResponseMessage responseMessage = ResponseMessage
-                .withResponseData(userDto,
+                .withResponseData(user,
                         "updat(\"/{id}\")e user successful",
                         "message");
 

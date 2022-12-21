@@ -23,7 +23,7 @@ public class ErrorMessages {
     @Value("${entry.null}")
     private String MESSAGE_NULL_ENTRY;
 
-    @Value("${password.not.valid }")
+    @Value("${password.not.valid}")
     private String MESSAGE_PASSWORD_NOT_VALID;
 
     @Value("${not.found.user}")
@@ -31,6 +31,9 @@ public class ErrorMessages {
 
     @Value("${not.found.wallet}")
     private String MESSAGE_NOT_FOUND_WALLET;
+
+    @Value("${not.found.role}")
+    private String MESSAGE_NOT_FOUND_ROLE;
 
     @Value("${amount.less.than.zero.error}")
     private String MESSAGE_LESS_THAN_ZERO_AMOUNT;

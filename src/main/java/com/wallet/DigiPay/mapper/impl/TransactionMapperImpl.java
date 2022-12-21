@@ -24,8 +24,9 @@ public class TransactionMapperImpl extends BaseMapperImpl<TransactionRequestDto,
         transaction.setDescription(transactionRequestDto.getDescription());
         transaction.setTransactionType(transactionRequestDto.getTransactionType());
         transaction.setTransactionStatus(TransactionStatus.Init);
+        transaction.setAmount(transactionRequestDto.getAmount());
         transaction.setSource(transactionRequestDto.getSource());
-        transaction.setDescription(transactionRequestDto.getWallet().getWalletNumber());
+        transaction.setDescription(transaction.getDescription());
 
         transaction.setDeleted(false);
 

@@ -25,12 +25,17 @@ public class UserRequestDto {
     @NotBlank
     private String password;
 
+
+    @NotNull
+    private Long roleId;
+
     private String name;
 
     private String lastName;
 
-    @NotNull
-    private List<RoleDto> roles;
+
+
+
 
     public UserRequestDto() {
     }
@@ -75,19 +80,19 @@ public class UserRequestDto {
         this.lastName = lastName;
     }
 
-    public List<RoleDto> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<RoleDto> roles) {
-        this.roles = roles;
-    }
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 }

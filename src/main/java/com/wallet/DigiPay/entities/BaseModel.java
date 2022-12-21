@@ -1,23 +1,24 @@
 package com.wallet.DigiPay.entities;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
-import java.sql.Date;
-import java.sql.Timestamp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+
+import java.util.Date;
 
 @MappedSuperclass
-@Getter
 @Setter
-
-
-public class BaseModel {
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public abstract class BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,15 +31,14 @@ public class BaseModel {
     @Column(name = "is_deleted")
     private boolean deleted;
 
-    @JsonIgnore
-    @Column(name = "date_created")
-    @CreatedDate
+
+    @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date_created",updatable = false)
     private Date dateCreated;
 
     @JsonIgnore
-    @Column(name = "date_modified")
-    @LastModifiedDate
+    @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateModified;
 
