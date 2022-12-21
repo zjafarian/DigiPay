@@ -108,9 +108,7 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
         if (!NationalCodeValidation.validationNationalCode(entity.getNationalCode()))
             throw new NationalCodeException(errorMessages.getMESSAGE_NOT_VALID_NATIONAL_CODE());
 
-        //check password is valid or not
-        if (!PasswordValidation.validationPassword(entity.getPassword()))
-            throw new PasswordException(errorMessages.getMESSAGE_PASSWORD_NOT_VALID());
+
 
 
         if (entity.getRole() == null)

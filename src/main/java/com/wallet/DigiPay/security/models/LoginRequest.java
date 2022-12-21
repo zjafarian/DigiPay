@@ -1,4 +1,4 @@
-package com.wallet.DigiPay.security;
+package com.wallet.DigiPay.security.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
