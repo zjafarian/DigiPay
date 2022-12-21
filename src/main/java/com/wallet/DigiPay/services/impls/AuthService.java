@@ -22,14 +22,22 @@ import javax.servlet.http.HttpServletResponse;
 @Service
 public class AuthService {
 
-    @Autowired
+
     private UserServiceImpl userService;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
+    private PasswordEncoder passwordEncoder;
     private RoleRepository roleRepository;
+
+    @Autowired
+
+    public AuthService( UserServiceImpl userService,
+                        PasswordEncoder passwordEncoder,
+                        RoleRepository roleRepository) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
+    }
+
+
 
     @Value("${access.secret.key}")
     private String accessSecretKey;

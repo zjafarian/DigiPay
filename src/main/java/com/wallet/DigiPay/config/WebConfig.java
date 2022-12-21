@@ -22,16 +22,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
-    @Autowired
-    AuthorizationInterceptor authorizationInterceptor;
+    private AuthorizationInterceptor authorizationInterceptor;
+
+    public WebConfig(AuthorizationInterceptor authorizationInterceptor){
+        this.authorizationInterceptor = authorizationInterceptor;
+    }
+
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:9091")
                 .allowCredentials(true);
-
-
     }
 
 
@@ -40,29 +42,12 @@ public class WebConfig implements WebMvcConfigurer {
         //users access to these addresses
         registry.addInterceptor(authorizationInterceptor)
 
-                .addPathPatterns("/users", "/auth/user", "/wallets", "/wallets/{id}/transactions");
+                .addPathPatterns("/users", "/auth", "/wallets", "/wallets/{id}/transactions");
     }
 
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
 
-    @Bean
-    public SecurityFilterChain filterChain(@NotNull HttpSecurity http) throws Exception {
-
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/users/**").permitAll()
-                .antMatchers("/test/**").permitAll()
-                .mvcMatchers("/wallets/**").hasAuthority(RoleType.User.toString())
-                .anyRequest().authenticated()
-                .and()
-                .csrf().disable()
-                .httpBasic();
 
 
-        return http.build();
-    }
 }
