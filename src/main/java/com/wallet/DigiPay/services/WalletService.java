@@ -18,7 +18,7 @@ public interface WalletService extends BaseService<Wallet,Long> {
 
     //Transfer money from one wallet to another wallet
     List<Wallet> transferFromWalletToWallet(Double amount,
-                                            String walletNumberSource,
+                                            Long walletId,
                                             String walletNumberDestination);
 
 

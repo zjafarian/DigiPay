@@ -207,26 +207,31 @@ public class WalletController {
             TransactionException {
 
         List<Wallet> wallets = walletService.transferFromWalletToWallet(transactionRequestDto.getAmount(),
-                transactionRequestDto.getSource(),
+                transactionRequestDto.getWalletId(),
                 transactionRequestDto.getDestination());
 
 
-        transactionRequestDto.setTransactionType(TransactionType.Withdraw);
-        transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
-        transactionRequestDto.setDescription(wallets.get(1).getWalletNumber());
+        transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Withdraw);
+        transactionRequestDto.setDestination(wallets.get(1).getWalletNumber());
+
 
         Transaction transaction1 = transactionService.generateTransaction(transactionRequestDto);
         transaction1.setUser(userService.findById(wallets.get(0).getUser().getId()).get());
         transaction1.setWallet(wallets.get(0));
+        transaction1.setSource(wallets.get(0).getWalletNumber());
+        transaction1.setDestination(wallets.get(1).getWalletNumber());
 
 
-        transactionRequestDto.setTransactionType(TransactionType.Deposit);
+        transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Deposit);
         transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
-        transactionRequestDto.setDescription(wallets.get(1).getWalletNumber());
+
+
 
         Transaction transaction2 = transactionService.generateTransaction(transactionRequestDto);
         transaction2.setUser(userService.findById(wallets.get(1).getUser().getId()).get());
         transaction2.setWallet(wallets.get(1));
+        transaction2.setSource(wallets.get(0).getWalletNumber());
+        transaction1.setDestination(wallets.get(1).getWalletNumber());
 
         transaction1 = transactionService.save(transaction1);
         transaction2 = transactionService.save(transaction2);

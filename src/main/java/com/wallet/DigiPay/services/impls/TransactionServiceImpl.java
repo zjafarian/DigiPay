@@ -57,16 +57,19 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
             break;
 
             case Withdraw: {
-                if (transactionRequestDto.getDestination() == null ||
-                        transactionRequestDto.getDestination().length() == 0)
-                    throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
+                checkDestination(transactionRequestDto);
             }
             break;
 
-            case TransferWTW: {
-                checkSourceDestination(transactionRequestDto);
+            case TransferWTW_Deposit: {
+                checkDestination(transactionRequestDto);
             }
+
             break;
+
+            case TransferWTW_Withdraw: {
+                checkDestination(transactionRequestDto);
+            }
 
 
         }
@@ -77,13 +80,9 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
         return transactionMapper.mapToObject(transactionRequestDto);
     }
 
-    private void checkSourceDestination(TransactionRequestDto transactionRequestDto) {
-        if ((transactionRequestDto.getSource() == null ||
-                transactionRequestDto.getSource().length() == 0) &&
-                (transactionRequestDto.getDestination() == null ||
-                        transactionRequestDto.getDestination().length() == 0))
-
-
+    private void checkDestination(TransactionRequestDto transactionRequestDto) {
+        if (transactionRequestDto.getDestination() == null ||
+                transactionRequestDto.getDestination().length() == 0)
             throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
     }
 
@@ -125,6 +124,7 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
 
             }
             break;
+
         }
 
 

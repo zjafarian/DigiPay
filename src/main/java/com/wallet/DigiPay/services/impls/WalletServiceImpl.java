@@ -208,21 +208,22 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
     @Override
     public List<Wallet> transferFromWalletToWallet(Double amount,
-                                                   String walletNumberSource,
+                                                   Long walletId,
                                                    String walletNumberDestination) {
 
-        Optional<Wallet> walletSource = walletRepository.findByWalletNumber(walletNumberSource);
+        Optional<Wallet> walletSource = walletRepository.findById(walletId);
+
 
         Optional<Wallet> walletDestination = walletRepository.findByWalletNumber(walletNumberDestination);
 
         //check source wallet is existed or not
         if (!walletSource.isPresent())
-            notFoundWallet(walletNumberSource + ": " + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+            notFoundWallet(walletId + ": " + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
 
 
         //check source wallet is active or not
         if (!walletSource.get().getActive())
-            deActiveWallet(walletNumberSource + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+            deActiveWallet(walletId + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
 
         //check destination wallet is existed or not
