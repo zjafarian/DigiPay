@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,22 +106,13 @@ public class WalletController {
             TransactionException {
 
 
-
         Wallet wallet = walletService
                 .depositWallet(transactionRequestDto.getAmount(),
                         transactionRequestDto.getWalletId());
 
+        transactionRequestDto.setSource(wallet.getWalletNumber());
 
-
-
-        Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
-
-
-        transaction.setDestination(wallet.getWalletNumber());
-        transaction.setUser(userService.findById(wallet.getUser().getId()).get());
-        transaction.setWallet(wallet);
-        transaction.setWalletBalance(wallet.getBalance());
-
+        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet),transactionRequestDto).get(0);
 
 
         transaction.setTransactionStatus(TransactionStatus.Success);
@@ -160,18 +152,9 @@ public class WalletController {
                 .withdrawWallet(transactionRequestDto.getAmount(),
                         transactionRequestDto.getWalletId());
 
-        transactionRequestDto.setSource(wallet.getWalletNumber());
+        transactionRequestDto.setDestination(wallet.getWalletNumber());
 
-
-
-        Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
-        transaction.setUser(userService.findById(wallet.getUser().getId()).get());
-        transaction.setWallet(wallet);
-        transaction.setWalletBalance(wallet.getBalance());
-        transaction.setDestination(transactionRequestDto.getDestination());
-
-
-
+        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet),transactionRequestDto).get(0);
 
 
 
@@ -210,40 +193,19 @@ public class WalletController {
                 transactionRequestDto.getWalletId(),
                 transactionRequestDto.getDestination());
 
-
-        transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Withdraw);
-        transactionRequestDto.setDestination(wallets.get(1).getWalletNumber());
-
-
-        Transaction transaction1 = transactionService.generateTransaction(transactionRequestDto);
-        transaction1.setUser(userService.findById(wallets.get(0).getUser().getId()).get());
-        transaction1.setWallet(wallets.get(0));
-        transaction1.setSource(wallets.get(0).getWalletNumber());
-        transaction1.setDestination(wallets.get(1).getWalletNumber());
-
-
-        transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Deposit);
         transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
 
+        List<Transaction> transactions =  walletService.createTransaction(wallets,transactionRequestDto);
+
+        transactions.stream().forEach(transaction -> transactionService.save(transaction));
+        transactions.stream().forEach(transaction -> {
+            transaction.setTransactionStatus(TransactionStatus.Success);
+            transactionService.update(transaction);
+        });
+
+        wallets.stream().forEach(wallet -> walletService.update(wallet));
 
 
-        Transaction transaction2 = transactionService.generateTransaction(transactionRequestDto);
-        transaction2.setUser(userService.findById(wallets.get(1).getUser().getId()).get());
-        transaction2.setWallet(wallets.get(1));
-        transaction2.setSource(wallets.get(0).getWalletNumber());
-        transaction1.setDestination(wallets.get(1).getWalletNumber());
-
-        transaction1 = transactionService.save(transaction1);
-        transaction2 = transactionService.save(transaction2);
-
-        transaction1.setTransactionStatus(TransactionStatus.Success);
-        transaction2.setTransactionStatus(TransactionStatus.Success);
-
-        transactionService.update(transaction1);
-        transactionService.update(transaction2);
-
-        walletService.update(wallets.get(0));
-        walletService.update(wallets.get(1));
 
         WalletDto walletDto = walletService.generateWalletDto(wallets.get(0));
 

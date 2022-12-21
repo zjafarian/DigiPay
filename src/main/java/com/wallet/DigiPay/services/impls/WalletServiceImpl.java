@@ -1,9 +1,14 @@
 package com.wallet.DigiPay.services.impls;
+
+import com.wallet.DigiPay.dto.TransactionRequestDto;
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.dto.WalletDto;
+import com.wallet.DigiPay.entities.Transaction;
+import com.wallet.DigiPay.entities.TransactionType;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
 import com.wallet.DigiPay.exceptions.*;
+import com.wallet.DigiPay.mapper.impl.TransactionMapperImpl;
 import com.wallet.DigiPay.repositories.TransactionRepository;
 import com.wallet.DigiPay.mapper.impl.RoleMapperImpl;
 import com.wallet.DigiPay.mapper.impl.UserMapperImpl;
@@ -17,6 +22,7 @@ import com.wallet.DigiPay.services.WalletService;
 import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 
@@ -28,6 +34,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private TransactionRepository transactionRepository;
+    private TransactionMapperImpl transactionMapper;
 
     private WalletMapperImpl walletMapper;
     private UserMapperImpl userMapper;
@@ -42,6 +49,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
                              WalletMapperImpl walletMapper,
                              RoleRepository roleRepository,
                              TransactionRepository transactionRepository,
+                             TransactionMapperImpl transactionMapper,
                              UserMapperImpl userMapper,
                              RoleMapperImpl roleMapper,
                              ErrorMessages errorMessages) {
@@ -52,7 +60,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         this.walletMapper = walletMapper;
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
-
+        this.transactionMapper = transactionMapper;
         this.errorMessages = errorMessages;
     }
 
@@ -74,7 +82,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         return walletDto;
     }
 
-    public User getUser(Long userId){
+    public User getUser(Long userId) {
         Optional<User> user = userRepository.findById(userId);
 
         if (!user.isPresent())
@@ -251,6 +259,40 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     }
 
 
+    public List<Transaction> createTransaction(List<Wallet> wallets, TransactionRequestDto transactionRequestDto) {
+        if (Objects.equals(transactionRequestDto.getTransactionType(), TransactionType.Deposit) ||
+                Objects.equals(transactionRequestDto.getTransactionType(), TransactionType.Withdraw)) {
+            Transaction transaction = transactionMapper.mapToObject(transactionRequestDto);
+            transaction.setWalletBalance(wallets.get(0).getBalance());
+            transaction.setWallet(wallets.get(0));
+            transaction.setUser(wallets.get(0).getUser());
+
+            return Arrays.asList(transaction);
+
+        } else if (Objects.equals(transactionRequestDto.getTransactionType(), TransactionType.TransferWTW)) {
+
+
+            transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Withdraw);
+
+            Transaction transaction1 = transactionMapper.mapToObject(transactionRequestDto);
+            transaction1.setWalletBalance(wallets.get(0).getBalance());
+            transaction1.setUser(wallets.get(0).getUser());
+            transaction1.setWallet(wallets.get(0));
+
+            transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Deposit);
+            Transaction transaction2 = transactionMapper.mapToObject(transactionRequestDto);
+            transaction2.setWalletBalance(wallets.get(1).getBalance());
+            transaction2.setWallet(wallets.get(1));
+            transaction2.setUser(wallets.get(1).getUser());
+
+            return Arrays.asList(transaction1, transaction2);
+
+
+        }
+
+        return new ArrayList<>();
+
+    }
 
 
     private CalculateWithdraw<Double> calculateWithdraw = (a, b) -> a - b;

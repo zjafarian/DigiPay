@@ -9,4 +9,6 @@ import com.wallet.DigiPay.entities.Wallet;
 
 public interface TransactionMapper extends BaseMapper<TransactionRequestDto, Transaction> {
 
+
+
 }

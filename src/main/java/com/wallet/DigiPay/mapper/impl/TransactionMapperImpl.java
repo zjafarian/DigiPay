@@ -26,7 +26,7 @@ public class TransactionMapperImpl extends BaseMapperImpl<TransactionRequestDto,
         transaction.setTransactionStatus(TransactionStatus.Init);
         transaction.setAmount(transactionRequestDto.getAmount());
         transaction.setSource(transactionRequestDto.getSource());
-        transaction.setDescription(transaction.getDescription());
+        transaction.setDestination(transactionRequestDto.getDestination());
 
         transaction.setDeleted(false);
 
@@ -35,4 +35,6 @@ public class TransactionMapperImpl extends BaseMapperImpl<TransactionRequestDto,
 
 
     }
+
+
 }
