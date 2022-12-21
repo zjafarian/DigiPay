@@ -18,6 +18,8 @@ public class TransactionController {
     @Autowired
     TransactionServiceImpl transactionService;
 
+
+    //get transactions with walletId. this method calls from user
     @GetMapping("/{id}/transactions")
     public ResponseEntity<ResponseMessage<?>> getTransactions(@PathVariable Long id){
 

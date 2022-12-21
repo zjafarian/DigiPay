@@ -29,28 +29,7 @@ public class UserController {
     UserServiceImpl userService;
 
 
-    @PostMapping
-    public ResponseEntity<ResponseMessage<?>> addUser(@Valid @RequestBody UserRequestDto userRequestDto)
-            throws ConstraintViolationException,
-            NullPointerException,
-            ExistPhoneNumberException,
-            NationalCodeException {
-
-        User user = userService.generateUser(userRequestDto);
-        Role role = userService.findRole(userRequestDto.getRoleId());
-
-        user.setRole(role);
-
-        userService.save(user);
-
-
-        ResponseMessage responseMessage = ResponseMessage
-                .withResponseData(user,
-                        "user Created Successfully",
-                        "message");
-
-        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
-    }
+    //get user with id. this method use from admin
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage<?>> getUser(@PathVariable Long id)
@@ -72,6 +51,7 @@ public class UserController {
     }
 
 
+    //update user
     @PutMapping
     public ResponseEntity<ResponseMessage<?>> updateUser(@Valid @RequestBody UserRequestDto userRequestDto)
             throws NotFoundException, NullPointerException {
@@ -80,16 +60,15 @@ public class UserController {
 
 
 
-
-
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(user,
-                        "updat(\"/{id}\")e user successful",
+                        "update user successful",
                         "message");
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
     }
 
+    //delete user
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage<?>> deleteUser(@PathVariable Long id)
             throws NotFoundException {

@@ -28,10 +28,12 @@ public class RoleController {
     public ResponseEntity<ResponseMessage<?>> addRole(@Valid @RequestBody RoleRequestDto roleRequestDto)
     throws NullPointerException{
 
+        //create Role
         Role role = roleService.generateRole(roleRequestDto);
         roleService.save(role);
 
 
+        //create response
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(role,
                         "Role created successful",
@@ -45,6 +47,7 @@ public class RoleController {
     public ResponseEntity<ResponseMessage<?>> getRole(@PathVariable Long id)
             throws NotFoundException {
 
+        //get role
 
         RoleRequestDto roleRequestDto = roleService.generateRoleDto(roleService.findById(id).get());
 
@@ -58,14 +61,6 @@ public class RoleController {
     }
 
 
-
-
-
-
-
-
-
-    
 
 
 }

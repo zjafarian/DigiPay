@@ -187,7 +187,8 @@ public class WalletController {
             NullPointerException,
             WalletActiveException,
             AmountException,
-            TransactionException {
+            TransactionException,
+            WalletNumberException{
 
         List<Wallet> wallets = walletService.transferFromWalletToWallet(transactionRequestDto.getAmount(),
                 transactionRequestDto.getWalletId(),

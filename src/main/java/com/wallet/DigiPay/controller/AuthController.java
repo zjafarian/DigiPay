@@ -4,6 +4,8 @@ package com.wallet.DigiPay.controller;
 
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.User;
+import com.wallet.DigiPay.exceptions.ExistPhoneNumberException;
+import com.wallet.DigiPay.exceptions.NationalCodeException;
 import com.wallet.DigiPay.messages.ResponseMessage;
 import com.wallet.DigiPay.security.*;
 import com.wallet.DigiPay.services.impls.AuthService;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
 
 @RestController
 @RequestMapping("/auth")
@@ -36,13 +39,18 @@ public class AuthController {
 
 
 
-
-
     @PostMapping("/register")
-    public ResponseEntity<ResponseMessage<?>> register(@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<ResponseMessage<?>> register(@RequestBody UserRequestDto userRequestDto)
+            throws ConstraintViolationException,
+            NullPointerException,
+            ExistPhoneNumberException,
+            NationalCodeException {
+
+        //registering user
         User user = authService.register(userRequestDto);
 
 
+        //create response
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(user,
                         "user Created Successfully",
@@ -56,24 +64,32 @@ public class AuthController {
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){
-        LoginTokens loginTokens =  authService.login(loginRequest.getNationalCode(),loginRequest.getPassword(),response) ;
 
+        //create LoginTokens from loginRequest and response
+        LoginTokens loginTokens =  authService.login(loginRequest.getNationalCode(),
+                loginRequest.getPassword(),response) ;
+
+        //create LoginResponse and return it
         return new LoginResponse(loginTokens.getAccessToken().getToken());
     }
 
 
+    //get user with token
     @GetMapping("/user")
     public ResponseEntity<ResponseMessage<?>> findUserFromToken(HttpServletRequest request){
 
+        //get user with request
         User user = (User) request.getAttribute("user");
 
         System.out.println("user : " + user);
 
 
+        //create userRequestDto with User
         UserRequestDto  userRequestDto= userService.generateUserRequestDto(user);
 
 
 
+        //create response
         ResponseMessage responseMessage = ResponseMessage
                 .withResponseData(userRequestDto,
                         "user find successful",
@@ -86,8 +102,11 @@ public class AuthController {
 
     @GetMapping("/refresh")
     public RefreshResponse newAccessTokenFromRefreshToken(@CookieValue("refresh_token") String refreshToken){
+
+        //create token for saving in refresh token
         LoginTokens tokens = authService.reNewAccessToken(refreshToken);
             String accessToken = tokens.getAccessToken().getToken();
+
         return new RefreshResponse(accessToken) ;
     }
 

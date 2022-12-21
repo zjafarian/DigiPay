@@ -214,13 +214,17 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         return wallet;
     }
 
+    //when user wants to transfer money from a wallet to another wallet
     @Override
     public List<Wallet> transferFromWalletToWallet(Double amount,
                                                    Long walletId,
                                                    String walletNumberDestination) {
 
+
+        //find wallet source with walletId
         Optional<Wallet> walletSource = walletRepository.findById(walletId);
 
+        //find wallet destination with walletNumber
 
         Optional<Wallet> walletDestination = walletRepository.findByWalletNumber(walletNumberDestination);
 
@@ -243,11 +247,21 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         if (!walletDestination.get().getActive())
             deActiveWallet(walletNumberDestination + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
+        //check wallets' numbers won't be equal
+        if (Objects.equals(walletSource.get().getWalletNumber() , walletDestination.get().getWalletNumber()))
+            throw new WalletNumberException(errorMessages.getMESSAGE_WALLETS_NUMBERS_COULD_NOT_EQUAL());
 
+
+        //check amount
         checkAmount(amount);
+
+        //calculate balance form source wallet
         Double balance = calculateWithdraw.calculateWithdraw(walletSource.get().getBalance(), amount);
 
+        //balance of source wallet after calculating will check, if it will be less than zero, user could not transfer money
         checkBalance(balance);
+
+
 
         Wallet walletS = walletSource.get();
         walletS.setBalance(balance);
@@ -259,9 +273,14 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     }
 
 
+    //create transactions with wallets and transactionRequestDto
     public List<Transaction> createTransaction(List<Wallet> wallets, TransactionRequestDto transactionRequestDto) {
+
+        //check transaction types
         if (Objects.equals(transactionRequestDto.getTransactionType(), TransactionType.Deposit) ||
                 Objects.equals(transactionRequestDto.getTransactionType(), TransactionType.Withdraw)) {
+
+            //create transaction for deposit or withdraw
             Transaction transaction = transactionMapper.mapToObject(transactionRequestDto);
             transaction.setWalletBalance(wallets.get(0).getBalance());
             transaction.setWallet(wallets.get(0));
@@ -271,7 +290,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
         } else if (Objects.equals(transactionRequestDto.getTransactionType(), TransactionType.TransferWTW)) {
 
-
+            //create transactions for transfer money from a wallet to another wallet
             transactionRequestDto.setTransactionType(TransactionType.TransferWTW_Withdraw);
 
             Transaction transaction1 = transactionMapper.mapToObject(transactionRequestDto);
@@ -298,6 +317,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     private CalculateWithdraw<Double> calculateWithdraw = (a, b) -> a - b;
 
     private void checkAmount(Double amount) {
+
         if (amount < 0)
             throw new AmountException(errorMessages.getMESSAGE_LESS_THAN_ZERO_AMOUNT());
 

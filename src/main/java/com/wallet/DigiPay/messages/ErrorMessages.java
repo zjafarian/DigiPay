@@ -53,6 +53,9 @@ public class ErrorMessages {
     @Value("${wallet.balance.error}")
     private String MESSAGE_WALLET_BALANCE;
 
+    @Value("${equal.wallet.number.error}")
+    private String MESSAGE_WALLETS_NUMBERS_COULD_NOT_EQUAL;
+
 
 
     public ErrorMessages() {
