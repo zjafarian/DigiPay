@@ -16,6 +16,7 @@ import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
 import com.wallet.DigiPay.utils.NationalCodeValidation;
 import com.wallet.DigiPay.utils.PasswordValidation;
 import com.wallet.DigiPay.utils.PhoneNumberValidation;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +69,14 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
 
 
         return userMapper.mapToObject(userRequestDto);
+    }
+
+
+    public Optional<User> findUserByNationalCode(String nationalCode){
+        Optional<User> user = userRepository.findByNationalCode(nationalCode);
+
+
+        return user;
     }
 
 

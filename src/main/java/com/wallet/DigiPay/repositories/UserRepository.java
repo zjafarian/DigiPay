@@ -10,4 +10,7 @@ public interface UserRepository extends BaseRepository<User,Long> {
 
     //find by user with phone number
     Optional<User> findByPhoneNumber(String phoneNumber);
+
+
+    Optional<User> findByNationalCode(String nationalCode);
 }

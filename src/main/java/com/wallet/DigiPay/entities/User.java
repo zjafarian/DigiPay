@@ -17,7 +17,7 @@ public class User extends BaseModel {
     @Column(name = "use_lastname")
     private String lastName;
 
-    @Column(name = "use_national_code")
+    @Column(name = "use_national_code",unique = true)
     private String nationalCode;
 
     @Column(name = "use_phone_number")
