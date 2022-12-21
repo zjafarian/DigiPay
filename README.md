@@ -7,9 +7,7 @@ It's my model
 API Addresses:
 For registering: http://localhost:9091/digipay/auth/register
 For login: http://localhost:9091/digipay/auth/login
-For get user with token: http://localhost:9091/digipay/auth/user
-For refresh token: http://localhost:9091/digipay/auth/refresh
-For logout: http://localhost:9091/digipay/auth/logout
+For get user with token: http://localhost:9091/digipay/auth/usert
 
 wallet: http://localhost:9091/digipay/wallets
 user: http://localhost:9091/digipay/users
