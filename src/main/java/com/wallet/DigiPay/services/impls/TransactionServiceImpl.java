@@ -57,28 +57,34 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
             break;
 
             case Withdraw: {
-                if (transactionRequestDto.getDescription() == null ||
-                        transactionRequestDto.getDescription().length() == 0)
+                if (transactionRequestDto.getDestination() == null ||
+                        transactionRequestDto.getDestination().length() == 0)
                     throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
             }
             break;
 
             case TransferWTW: {
-                if ((transactionRequestDto.getSource() == null ||
-                        transactionRequestDto.getSource().length() == 0) &&
-                        (transactionRequestDto.getDescription() == null ||
-                                transactionRequestDto.getDescription().length() == 0))
-
-
-                    throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
+                checkSourceDestination(transactionRequestDto);
             }
             break;
+
+
         }
 
 
 
 
         return transactionMapper.mapToObject(transactionRequestDto);
+    }
+
+    private void checkSourceDestination(TransactionRequestDto transactionRequestDto) {
+        if ((transactionRequestDto.getSource() == null ||
+                transactionRequestDto.getSource().length() == 0) &&
+                (transactionRequestDto.getDestination() == null ||
+                        transactionRequestDto.getDestination().length() == 0))
+
+
+            throw new NullPointerException(errorMessages.getMESSAGE_NULL_ENTRY());
     }
 
 
@@ -109,7 +115,7 @@ public class TransactionServiceImpl extends BaseServiceImpl<Transaction, Long> i
             break;
             case Withdraw: {
 
-                if (entity.getDescription().length() != 16) {
+                if (entity.getDestination().length() != 16) {
                     //check destination; before redirecting to IPG, check cart number(16 digits)
                     entity.setTransactionStatus(TransactionStatus.Failed);
                     transactionRepository.save(entity);

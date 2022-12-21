@@ -155,15 +155,26 @@ public class WalletController {
             CartNumberException,
             TransactionException {
 
+
         Wallet wallet = walletService
                 .withdrawWallet(transactionRequestDto.getAmount(),
                         transactionRequestDto.getWalletId());
 
         transactionRequestDto.setSource(wallet.getWalletNumber());
 
+
+
         Transaction transaction = transactionService.generateTransaction(transactionRequestDto);
         transaction.setUser(userService.findById(wallet.getUser().getId()).get());
         transaction.setWallet(wallet);
+        transaction.setWalletBalance(wallet.getBalance());
+        transaction.setDestination(transactionRequestDto.getDestination());
+
+
+
+
+
+
 
         transaction = transactionService.save(transaction);
 

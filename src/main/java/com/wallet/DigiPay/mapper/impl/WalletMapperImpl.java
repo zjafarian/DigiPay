@@ -10,7 +10,16 @@ public class WalletMapperImpl extends BaseMapperImpl<WalletDto, Wallet> implemen
 
     @Override
     public WalletDto mapToDTO(Wallet wallet) {
-        return super.mapToDTO(wallet);
+        WalletDto walletDto = new WalletDto();
+        walletDto.setId(wallet.getId());
+        walletDto.setBalance(wallet.getBalance());
+        walletDto.setWalletNumber(wallet.getWalletNumber());
+        walletDto.setIsActive(wallet.getActive());
+        walletDto.setUserId(wallet.getUser().getId());
+        walletDto.setTitle(wallet.getTitle());
+
+
+        return walletDto;
     }
 
     @Override

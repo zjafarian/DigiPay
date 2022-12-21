@@ -70,9 +70,6 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         if (!user.isPresent())
             throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
 
-        UserRequestDto userRequestDto = userMapper.mapToDTO(user.get());
-
-        //walletDto.setUser(userRequestDto);
 
         return walletDto;
     }
