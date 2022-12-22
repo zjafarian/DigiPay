@@ -7,6 +7,7 @@ import com.wallet.DigiPay.entities.RoleType;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.ExistNationalCodeException;
 import com.wallet.DigiPay.exceptions.NationalCodeException;
+import com.wallet.DigiPay.exceptions.NotFoundException;
 import com.wallet.DigiPay.exceptions.PasswordException;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.messages.ResponseMessage;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -129,31 +131,21 @@ public class AuthController {
 
     //get user with token
     @GetMapping("/user")
-    public ResponseEntity<ResponseMessage<?>> findUserFromToken(HttpServletRequest request) {
+    public ResponseEntity<ResponseMessage<?>> findUserFromToken(HttpServletRequest request)
+    throws NotFoundException  {
 
 
         String nationalCode = "";
         String token = request.getHeader("Authorization");
         token = token.split(" ")[1].trim();
 
-
-
-
-
-
-        //token = token.substring("Bearer ".length());
-        //if (jwtUtils.validateJwtToken(token))
+        if (jwtUtils.validateJwtToken(token))
         nationalCode = jwtUtils.getUserNameFromJwtToken(token);
 
-
-        //get user with request
-        User user = (User) request.getAttribute(RoleType.User.toString());
-
-        System.out.println(RoleType.User.toString() + ": " + user);
-
+        Optional<User> user = userService.findUserByNationalCode(nationalCode);
 
         //create userRequestDto with User
-        UserRequestDto userRequestDto = userService.generateUserRequestDto(user);
+        UserRequestDto userRequestDto = userService.generateUserRequestDto(user.get());
 
 
         //create response

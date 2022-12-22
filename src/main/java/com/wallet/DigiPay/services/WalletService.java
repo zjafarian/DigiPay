@@ -22,6 +22,9 @@ public interface WalletService extends BaseService<Wallet,Long> {
                                             String walletNumberDestination);
 
 
+    Wallet changeActiveWallet(Wallet wallet);
+
+
 
 
 

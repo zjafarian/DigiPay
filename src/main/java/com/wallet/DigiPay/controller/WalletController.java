@@ -222,6 +222,31 @@ public class WalletController {
     }
 
 
+    @PutMapping("/changeWalletStatus")
+    public ResponseEntity<ResponseMessage<?>> changeWalletActivity(@RequestBody WalletDto walletDto){
+
+
+        Wallet wallet = walletService.generateWallet(walletDto);
+        wallet = walletService.changeActiveWallet(wallet);
+
+        wallet = walletService.update(wallet);
+
+        walletDto = walletService.generateWalletDto(wallet);
+
+
+        ResponseMessage responseMessage = ResponseMessage
+                .withResponseData(walletDto,
+                        "Transfer wallet to wallet was successful",
+                        "message");
+
+
+        return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
+
+
+
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseMessage<?>> deleteWallet(@PathVariable Long id)
             throws NotFoundException {

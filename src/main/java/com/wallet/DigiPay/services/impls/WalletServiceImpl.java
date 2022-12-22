@@ -272,6 +272,12 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
     }
 
+    @Override
+    public Wallet changeActiveWallet(Wallet wallet) {
+       wallet.setActive(!wallet.getActive());
+       return wallet;
+    }
+
 
     //create transactions with wallets and transactionRequestDto
     public List<Transaction> createTransaction(List<Wallet> wallets, TransactionRequestDto transactionRequestDto) {

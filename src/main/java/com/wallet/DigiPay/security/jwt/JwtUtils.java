@@ -39,46 +39,29 @@ public class JwtUtils implements Serializable {
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
 
-    return Jwts.builder().claim("nationalCode" , userPrincipal.getUsername())
+
+    byte[] bytes = Decoders.BASE64.decode(secretKey);
+
+    Key secretKey = Keys.hmacShaKeyFor(bytes);
+
+    return Jwts.builder()
+            .setSubject((userPrincipal.getUsername()))
             .setIssuedAt(new Date())
             .setExpiration(new Date((new Date()).getTime() + secretKeyExpirationMs))
-            .signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8)))
+            .signWith(secretKey,SignatureAlgorithm.HS256)
             .compact();
+
+
+
   }
 
   public String getUserNameFromJwtToken(String token) {
 
-    String username="";
-    try {
-      username = getClaimFromToken(token, Claims::getSubject);
-      //username = claims.getSubject();
-    } catch (Exception e) {
-      username = null;
-    }
-    return username;
-
-
-
-    //return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+    return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
   }
 
-  public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = getAllClaimsFromToken(token);
-    return claimsResolver.apply(claims);
-  }
-
-  private Claims getAllClaimsFromToken(String token) {
-    //SecretKey key = Keys.hmacShaKeyFor(encodedKeyBytes);
-    SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
-   Claims claims =  Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-  }
 
   public boolean validateJwtToken(String authToken) {
-
-
-
-
 
     try {
 

@@ -74,6 +74,9 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
     public Optional<User> findUserByNationalCode(String nationalCode){
         Optional<User> user = userRepository.findByNationalCode(nationalCode);
 
+        if (!user.isPresent())
+            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
+
 
         return user;
     }

@@ -20,7 +20,7 @@ public class UserMapperImpl extends BaseMapperImpl<UserRequestDto, User> impleme
         if (user.getId() != null)
             userRequestDto.setId(user.getId());
 
-        if (!user.getNationalCode().isEmpty())
+        if (!user.getPassword().isEmpty())
             userRequestDto.setPassword(user.getPassword());
 
         if (!user.getPhoneNumber().isEmpty())
@@ -29,15 +29,17 @@ public class UserMapperImpl extends BaseMapperImpl<UserRequestDto, User> impleme
         if (!user.getNationalCode().isEmpty())
             userRequestDto.setNationalCode(user.getNationalCode());
 
-        if (!user.getName().isEmpty())
-            userRequestDto.setName(user.getName());
-
-        if (!user.getLastName().isEmpty())
-            userRequestDto.setLastName(user.getLastName());
-
-
         if (user.getRole() != null)
             userRequestDto.setRoleId(user.getRole().getId());
+
+
+
+        userRequestDto.setName(user.getName());
+        userRequestDto.setLastName(user.getLastName());
+
+
+
+
 
 
 
