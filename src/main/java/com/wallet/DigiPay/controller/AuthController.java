@@ -1,7 +1,6 @@
 package com.wallet.DigiPay.controller;
 
 
-
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.RoleType;
@@ -21,13 +20,16 @@ import com.wallet.DigiPay.utils.PasswordValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
@@ -60,13 +62,12 @@ public class AuthController {
 
 
     @GetMapping("/testOrigins")
-    public String testOrigin(HttpServletRequest request, HttpServletResponse response){
-        System.out.println("uri: "+ request.getRequestURI());
-        System.out.println("url: "+ request.getRequestURL());
+    public String testOrigin(HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("uri: " + request.getRequestURI());
+        System.out.println("url: " + request.getRequestURL());
 
-        return "tested Origins" ;
+        return "tested Origins";
     }
-
 
 
     @PostMapping("/register")
@@ -83,7 +84,7 @@ public class AuthController {
 
 
         userRequestDto.setPassword(encoder.encode(userRequestDto.getPassword()));
-        Role role =roleService.findById(userRequestDto.getRoleId()).get();
+        Role role = roleService.findById(userRequestDto.getRoleId()).get();
         User user = userService.generateUser(userRequestDto);
         user.setRole(role);
 
@@ -101,9 +102,8 @@ public class AuthController {
     }
 
 
-
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getNationalCode(), loginRequest.getPassword()));
@@ -122,11 +122,6 @@ public class AuthController {
                 roles.get(0));
 
 
-
-
-
-
-
         //create LoginResponse and return it
         return loginResponse;
     }
@@ -134,7 +129,22 @@ public class AuthController {
 
     //get user with token
     @GetMapping("/user")
-    public ResponseEntity<ResponseMessage<?>> findUserFromToken(HttpServletRequest request){
+    public ResponseEntity<ResponseMessage<?>> findUserFromToken(HttpServletRequest request) {
+
+
+        String nationalCode = "";
+        String token = request.getHeader("Authorization");
+        token = token.split(" ")[1].trim();
+
+
+
+
+
+
+        //token = token.substring("Bearer ".length());
+        //if (jwtUtils.validateJwtToken(token))
+        nationalCode = jwtUtils.getUserNameFromJwtToken(token);
+
 
         //get user with request
         User user = (User) request.getAttribute(RoleType.User.toString());
@@ -143,8 +153,7 @@ public class AuthController {
 
 
         //create userRequestDto with User
-        UserRequestDto  userRequestDto= userService.generateUserRequestDto(user);
-
+        UserRequestDto userRequestDto = userService.generateUserRequestDto(user);
 
 
         //create response
@@ -156,8 +165,6 @@ public class AuthController {
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.ACCEPTED);
     }
-
-
 
 
 }

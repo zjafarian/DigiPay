@@ -3,6 +3,7 @@ package com.wallet.DigiPay.security.service;
 
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.repositories.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,4 +25,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return UserDetailsImpl.build(user);
     }
+
+
+
+
+
+
+
 }
