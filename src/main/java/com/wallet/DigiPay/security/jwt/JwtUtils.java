@@ -1,6 +1,7 @@
 package com.wallet.DigiPay.security.jwt;
 
 
+import com.wallet.DigiPay.security.models.LoginResponse;
 import com.wallet.DigiPay.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.crypto.MacProvider;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.Cookie;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -34,6 +36,9 @@ public class JwtUtils implements Serializable {
 
   @Value("${access.secret.key.validityInMinutes}")
   private int secretKeyExpirationMs;
+
+  @Value("${server.servlet.context-path}")
+  private String contextPath;
 
   @Value("${app.jwt.cookie.name}")
   private String jwtCookieName;
@@ -85,16 +90,12 @@ public class JwtUtils implements Serializable {
     return false;
   }
 
-  public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-    String jwt = getUserNameFromJwtToken(userPrincipal.getUsername());
-    ResponseCookie cookie = ResponseCookie.from(jwtCookieName, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
-    return cookie;
-  }
-
-  public ResponseCookie getCleanJwtCookie() {
-    ResponseCookie cookie = ResponseCookie.from(jwtCookieName, null).path("/api").build();
-    return cookie;
-  }
+ public void setRefreshToken(LoginResponse loginResponse){
+   Cookie cookie = new Cookie("refresh_token", loginResponse.getToken());
+   cookie.setMaxAge(3600);
+   cookie.setHttpOnly(true);
+   cookie.setPath(contextPath);
+ }
 
 
 

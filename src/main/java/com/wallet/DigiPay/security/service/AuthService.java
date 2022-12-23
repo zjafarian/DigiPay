@@ -12,14 +12,17 @@ import com.wallet.DigiPay.repositories.UserRepository;
 import com.wallet.DigiPay.security.jwt.JwtUtils;
 import com.wallet.DigiPay.security.models.LoginRequest;
 import com.wallet.DigiPay.security.models.LoginResponse;
+import com.wallet.DigiPay.security.service.error.JWTIsExpired;
 import com.wallet.DigiPay.services.UserService;
 import com.wallet.DigiPay.utils.PasswordValidation;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +87,10 @@ public class AuthService {
                 userDetails.getUsername(),
                 roles.get(0));
 
+        jwtUtils.setRefreshToken(loginResponse);
+
+
+
         return loginResponse;
 
     }
@@ -111,6 +118,23 @@ public class AuthService {
 
         return userRequestDto;
 
+
+
+    }
+
+    public User getUserFromAccessToken(String token){
+        String nationalCode = "";
+        try {
+            if (jwtUtils.validateJwtToken(token))
+                nationalCode = jwtUtils.getUserNameFromJwtToken(token);
+
+        }
+        catch (ExpiredJwtException exception){
+            throw new JWTIsExpired("access token is expired");
+        }
+
+        return userRepository.findByNationalCode(nationalCode)
+                .orElseThrow(()-> new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER()));
 
 
     }
