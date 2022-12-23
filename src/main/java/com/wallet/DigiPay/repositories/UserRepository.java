@@ -2,7 +2,7 @@ package com.wallet.DigiPay.repositories;
 
 
 import com.wallet.DigiPay.entities.User;
-import com.wallet.DigiPay.repositories.base.BaseRepository;
+import com.wallet.DigiPay.base.baseRepository.BaseRepository;
 
 import java.util.List;
 import java.util.Optional;

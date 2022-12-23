@@ -1,14 +1,12 @@
 package com.wallet.DigiPay.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Builder;
+import com.wallet.DigiPay.base.BaseModel;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "t_role")
-public class Role extends BaseModel{
+public class Role extends BaseModel {
 
 
 

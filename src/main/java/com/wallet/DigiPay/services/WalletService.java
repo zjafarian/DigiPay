@@ -1,9 +1,7 @@
 package com.wallet.DigiPay.services;
 
-import com.wallet.DigiPay.dto.WalletDto;
-import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.entities.Wallet;
-import com.wallet.DigiPay.services.base.BaseService;
+import com.wallet.DigiPay.base.baseServide.BaseService;
 
 import java.util.List;
 

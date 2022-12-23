@@ -1,4 +1,4 @@
-package com.wallet.DigiPay.entities;
+package com.wallet.DigiPay.base;
 
 
 import lombok.AllArgsConstructor;

@@ -1,8 +1,9 @@
 package com.wallet.DigiPay.entities;
 
+import com.wallet.DigiPay.base.BaseModel;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Entity
 @Table(name = "t_wallet")

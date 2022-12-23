@@ -1,10 +1,8 @@
 package com.wallet.DigiPay.entities;
 
-import lombok.Builder;
+import com.wallet.DigiPay.base.BaseModel;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.Set;
 
 @Entity
 @Table(name = "t_user")

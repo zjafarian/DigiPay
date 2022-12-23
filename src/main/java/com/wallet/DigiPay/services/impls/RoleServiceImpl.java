@@ -9,15 +9,14 @@ import com.wallet.DigiPay.exceptions.NotFoundException;
 import com.wallet.DigiPay.mapper.RoleMapper;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.RoleRepository;
-import com.wallet.DigiPay.repositories.base.BaseRepository;
+import com.wallet.DigiPay.base.baseRepository.BaseRepository;
 import com.wallet.DigiPay.services.RoleService;
-import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
+import com.wallet.DigiPay.base.baseServide.impls.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service

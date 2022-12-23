@@ -2,7 +2,6 @@ package com.wallet.DigiPay.services.impls;
 
 
 import com.wallet.DigiPay.dto.UserRequestDto;
-import com.wallet.DigiPay.entities.Role;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.*;
 import com.wallet.DigiPay.mapper.impl.RoleMapperImpl;
@@ -10,11 +9,10 @@ import com.wallet.DigiPay.mapper.impl.UserMapperImpl;
 import com.wallet.DigiPay.messages.ErrorMessages;
 import com.wallet.DigiPay.repositories.RoleRepository;
 import com.wallet.DigiPay.repositories.UserRepository;
-import com.wallet.DigiPay.repositories.base.BaseRepository;
+import com.wallet.DigiPay.base.baseRepository.BaseRepository;
 import com.wallet.DigiPay.services.UserService;
-import com.wallet.DigiPay.services.base.impls.BaseServiceImpl;
+import com.wallet.DigiPay.base.baseServide.impls.BaseServiceImpl;
 import com.wallet.DigiPay.utils.NationalCodeValidation;
-import com.wallet.DigiPay.utils.PasswordValidation;
 import com.wallet.DigiPay.utils.PhoneNumberValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

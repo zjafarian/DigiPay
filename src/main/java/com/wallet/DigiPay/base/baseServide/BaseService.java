@@ -1,8 +1,5 @@
-package com.wallet.DigiPay.services.base;
+package com.wallet.DigiPay.base.baseServide;
 
-import com.wallet.DigiPay.entities.Role;
-
-import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;

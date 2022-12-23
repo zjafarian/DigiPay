@@ -2,7 +2,7 @@ package com.wallet.DigiPay.mapper.impl;
 
 
 
-import com.wallet.DigiPay.mapper.BaseMapper;
+import com.wallet.DigiPay.base.BaseMapper;
 
 
 public abstract class BaseMapperImpl<DTO,OBJ> implements BaseMapper<DTO,OBJ> {
