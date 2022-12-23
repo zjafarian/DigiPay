@@ -42,11 +42,10 @@ public class JwtUtils implements Serializable {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
-
-
     byte[] bytes = Decoders.BASE64.decode(secretKey);
 
     Key secretKey = Keys.hmacShaKeyFor(bytes);
+
 
     return Jwts.builder()
             .setSubject((userPrincipal.getUsername()))
