@@ -3,7 +3,6 @@ package com.wallet.DigiPay.controller;
 
 import com.wallet.DigiPay.dto.UserRequestDto;
 import com.wallet.DigiPay.entities.Role;
-import com.wallet.DigiPay.entities.RoleType;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.exceptions.ExistNationalCodeException;
 import com.wallet.DigiPay.exceptions.NationalCodeException;
@@ -14,19 +13,19 @@ import com.wallet.DigiPay.messages.ResponseMessage;
 import com.wallet.DigiPay.security.jwt.JwtUtils;
 import com.wallet.DigiPay.security.models.LoginRequest;
 import com.wallet.DigiPay.security.models.LoginResponse;
+import com.wallet.DigiPay.security.service.AuthService;
 import com.wallet.DigiPay.security.service.UserDetailsImpl;
 import com.wallet.DigiPay.services.impls.RoleServiceImpl;
 import com.wallet.DigiPay.services.impls.UserServiceImpl;
 import com.wallet.DigiPay.utils.PasswordValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,20 +46,11 @@ public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
 
-    @Autowired
-    UserServiceImpl userService;
 
     @Autowired
-    RoleServiceImpl roleService;
+    AuthService authService;
 
-    @Autowired
-    PasswordEncoder encoder;
 
-    @Autowired
-    JwtUtils jwtUtils;
-
-    @Autowired
-    ErrorMessages errorMessages;
 
 
     @GetMapping("/testOrigins")
@@ -80,17 +70,7 @@ public class AuthController {
             NationalCodeException {
 
 
-        //check password is valid or not
-        if (!PasswordValidation.validationPassword(userRequestDto.getPassword()))
-            throw new PasswordException(errorMessages.getMESSAGE_PASSWORD_NOT_VALID());
-
-
-        userRequestDto.setPassword(encoder.encode(userRequestDto.getPassword()));
-        Role role = roleService.findById(userRequestDto.getRoleId()).get();
-        User user = userService.generateUser(userRequestDto);
-        user.setRole(role);
-
-        userService.save(user);
+        User user = authService.registerUser(userRequestDto);
 
 
         //create response
@@ -110,18 +90,9 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getNationalCode(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+        LoginResponse loginResponse = authService.login(authentication,loginRequest);
 
-        LoginResponse loginResponse = new LoginResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                roles.get(0));
 
 
         //create LoginResponse and return it
@@ -132,20 +103,11 @@ public class AuthController {
     //get user with token
     @GetMapping("/user")
     public ResponseEntity<ResponseMessage<?>> findUserFromToken(HttpServletRequest request)
-    throws NotFoundException  {
+            throws NotFoundException {
 
-
-        String nationalCode = "";
-        String token = request.getHeader("Authorization");
-        token = token.split(" ")[1].trim();
-
-        if (jwtUtils.validateJwtToken(token))
-        nationalCode = jwtUtils.getUserNameFromJwtToken(token);
-
-        Optional<User> user = userService.findUserByNationalCode(nationalCode);
 
         //create userRequestDto with User
-        UserRequestDto userRequestDto = userService.generateUserRequestDto(user.get());
+        UserRequestDto userRequestDto = authService.getUser(request);
 
 
         //create response

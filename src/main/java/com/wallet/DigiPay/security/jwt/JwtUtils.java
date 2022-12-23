@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,9 @@ public class JwtUtils implements Serializable {
 
   @Value("${access.secret.key.validityInMinutes}")
   private int secretKeyExpirationMs;
+
+  @Value("${app.jwt.cookie.name}")
+  private String jwtCookieName;
 
   public String generateJwtToken(Authentication authentication) {
 
@@ -80,6 +84,17 @@ public class JwtUtils implements Serializable {
     }
 
     return false;
+  }
+
+  public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
+    String jwt = getUserNameFromJwtToken(userPrincipal.getUsername());
+    ResponseCookie cookie = ResponseCookie.from(jwtCookieName, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
+    return cookie;
+  }
+
+  public ResponseCookie getCleanJwtCookie() {
+    ResponseCookie cookie = ResponseCookie.from(jwtCookieName, null).path("/api").build();
+    return cookie;
   }
 
 
