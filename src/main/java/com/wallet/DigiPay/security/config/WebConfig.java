@@ -1,11 +1,13 @@
 package com.wallet.DigiPay.security.config;
 
+import com.wallet.DigiPay.entities.RoleType;
 import com.wallet.DigiPay.security.jwt.AuthEntryPointJwt;
 import com.wallet.DigiPay.security.jwt.AuthTokenFilter;
 import com.wallet.DigiPay.security.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -61,6 +63,8 @@ public class WebConfig  {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/auth/**").permitAll()
+                .antMatchers("/wallets/**").hasAuthority(RoleType.User.toString())
+                .mvcMatchers(HttpMethod.PUT,"/users/**").hasAuthority(RoleType.User.toString())
                 .antMatchers("/test/**").permitAll()
                 .anyRequest().authenticated();
 

@@ -110,11 +110,11 @@ public class WalletController {
 
         Wallet wallet = walletService
                 .depositWallet(transactionRequestDto.getAmount(),
-                       walletFind);
+                        walletFind);
 
         transactionRequestDto.setSource(wallet.getWalletNumber());
 
-        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet),transactionRequestDto).get(0);
+        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet), transactionRequestDto).get(0);
 
 
         transaction.setTransactionStatus(TransactionStatus.Success);
@@ -158,9 +158,7 @@ public class WalletController {
 
         transactionRequestDto.setDestination(wallet.getWalletNumber());
 
-        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet),transactionRequestDto).get(0);
-
-
+        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet), transactionRequestDto).get(0);
 
 
         transaction = transactionService.save(transaction);
@@ -192,7 +190,7 @@ public class WalletController {
             WalletActiveException,
             AmountException,
             TransactionException,
-            WalletNumberException{
+            WalletNumberException {
 
         Wallet walletSource = walletService.findById(transactionRequestDto.getWalletId()).get();
         Wallet walletDestination = walletService.findWalletByNumber(transactionRequestDto.getDestination()).get();
@@ -203,7 +201,7 @@ public class WalletController {
 
         transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
 
-        List<Transaction> transactions =  walletService.createTransaction(wallets,transactionRequestDto);
+        List<Transaction> transactions = walletService.createTransaction(wallets, transactionRequestDto);
 
         transactions.stream().forEach(transaction -> transactionService.save(transaction));
         transactions.stream().forEach(transaction -> {
@@ -212,7 +210,6 @@ public class WalletController {
         });
 
         wallets.stream().forEach(wallet -> walletService.update(wallet));
-
 
 
         WalletDto walletDto = walletService.generateWalletDto(wallets.get(0));
@@ -230,7 +227,7 @@ public class WalletController {
 
 
     @PutMapping("/changeWalletStatus")
-    public ResponseEntity<ResponseMessage<?>> changeWalletActivity(@RequestBody WalletDto walletDto){
+    public ResponseEntity<ResponseMessage<?>> changeWalletActivity(@RequestBody WalletDto walletDto) {
 
 
         Wallet wallet = walletService.generateWallet(walletDto);
@@ -248,7 +245,6 @@ public class WalletController {
 
 
         return new ResponseEntity<ResponseMessage<?>>(responseMessage, HttpStatus.CREATED);
-
 
 
     }
