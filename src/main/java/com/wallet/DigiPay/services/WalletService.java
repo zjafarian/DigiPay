@@ -11,15 +11,14 @@ public interface WalletService extends BaseService<Wallet,Long> {
 
 
     //Deposit money from the bank to the wallet
-    Wallet depositWallet(Double amount, Long walletId);
+    Wallet depositWallet(Double amount, Wallet wallet);
 
     //Withdraw money to the bank from the wallet
-    Wallet withdrawWallet(Double amount,Long walletId);
+    Wallet withdrawWallet(Double amount,Wallet wallet);
 
     //Transfer money from one wallet to another wallet
     List<Wallet> transferFromWalletToWallet(Double amount,
-                                            Long walletId,
-                                            String walletNumberDestination);
+                                            List<Wallet> wallets);
 
 
     Wallet changeActiveWallet(Wallet wallet);

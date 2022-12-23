@@ -105,10 +105,12 @@ public class WalletController {
             CartNumberException,
             TransactionException {
 
+        Wallet walletFind = walletService.findById(transactionRequestDto.getWalletId()).get();
+
 
         Wallet wallet = walletService
                 .depositWallet(transactionRequestDto.getAmount(),
-                        transactionRequestDto.getWalletId());
+                       walletFind);
 
         transactionRequestDto.setSource(wallet.getWalletNumber());
 
@@ -147,10 +149,12 @@ public class WalletController {
             CartNumberException,
             TransactionException {
 
+        Wallet walletFind = walletService.findById(transactionRequestDto.getWalletId()).get();
+
 
         Wallet wallet = walletService
                 .withdrawWallet(transactionRequestDto.getAmount(),
-                        transactionRequestDto.getWalletId());
+                        walletFind);
 
         transactionRequestDto.setDestination(wallet.getWalletNumber());
 
@@ -190,9 +194,12 @@ public class WalletController {
             TransactionException,
             WalletNumberException{
 
+        Wallet walletSource = walletService.findById(transactionRequestDto.getWalletId()).get();
+        Wallet walletDestination = walletService.findWalletByNumber(transactionRequestDto.getDestination()).get();
+
+
         List<Wallet> wallets = walletService.transferFromWalletToWallet(transactionRequestDto.getAmount(),
-                transactionRequestDto.getWalletId(),
-                transactionRequestDto.getDestination());
+                Arrays.asList(walletSource, walletDestination));
 
         transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
 

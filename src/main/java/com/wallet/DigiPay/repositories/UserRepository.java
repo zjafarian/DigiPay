@@ -4,6 +4,7 @@ package com.wallet.DigiPay.repositories;
 import com.wallet.DigiPay.entities.User;
 import com.wallet.DigiPay.repositories.base.BaseRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends BaseRepository<User,Long> {
@@ -13,4 +14,7 @@ public interface UserRepository extends BaseRepository<User,Long> {
 
 
     Optional<User> findByNationalCode(String nationalCode);
+
+    @Override
+    List<User> findAll();
 }

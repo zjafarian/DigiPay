@@ -27,6 +27,7 @@ import java.util.*;
 
 
 @Service
+
 public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements WalletService {
 
 
@@ -130,7 +131,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
         Optional<Wallet> wallet = walletRepository.findById(id);
         if (!wallet.isPresent())
-            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+            notFoundWallet(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
 
         return wallet;
     }
@@ -162,14 +163,8 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
     //Deposit money from the bank to the wallet
     @Override
-    public Wallet depositWallet(Double amount, Long walletId) {
+    public Wallet depositWallet(Double amount, Wallet wallet) {
 
-        Optional<Wallet> walletOptional = findById(walletId);
-        if (!walletOptional.isPresent())
-            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
-
-        if (!walletOptional.get().getActive() || walletOptional.get().getActive() == null)
-            throw new WalletActiveException(errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
 
         if (amount < 0)
@@ -178,8 +173,8 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         if (amount == 0)
             throw new AmountException(errorMessages.getMESSAGE_ZERO_AMOUNT());
 
-        Double balance = walletOptional.get().getBalance() + amount;
-        Wallet wallet = walletOptional.get();
+        Double balance = wallet.getBalance() + amount;
+
         wallet.setBalance(balance);
 
         return wallet;
@@ -188,25 +183,17 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     }
 
     @Override
-    public Wallet withdrawWallet(Double amount, Long walletId) {
+    public Wallet withdrawWallet(Double amount, Wallet wallet) {
 
-        Optional<Wallet> walletOptional = findById(walletId);
-        if (!walletOptional.isPresent())
-            notFoundWallet(walletOptional.get().getWalletNumber() + " :" + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
-
-
-        if (!walletOptional.get().getActive())
-            deActiveWallet(walletOptional.get().getWalletNumber() + " :" + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
 
         checkAmount(amount);
 
-        Double balance = calculateWithdraw.calculateWithdraw(walletOptional.get().getBalance(), amount);
+        Double balance = calculateWithdraw.calculateWithdraw(wallet.getBalance(), amount);
 
         checkBalance(balance);
 
 
-        Wallet wallet = walletOptional.get();
 
         wallet.setBalance(balance);
 
@@ -217,38 +204,32 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     //when user wants to transfer money from a wallet to another wallet
     @Override
     public List<Wallet> transferFromWalletToWallet(Double amount,
-                                                   Long walletId,
-                                                   String walletNumberDestination) {
+                                                 List<Wallet> wallets) {
 
 
         //find wallet source with walletId
-        Optional<Wallet> walletSource = walletRepository.findById(walletId);
+        Wallet walletSource = wallets.get(0);
 
         //find wallet destination with walletNumber
 
-        Optional<Wallet> walletDestination = walletRepository.findByWalletNumber(walletNumberDestination);
+        Wallet walletDestination = wallets.get(1);
 
-        //check source wallet is existed or not
-        if (!walletSource.isPresent())
-            notFoundWallet(walletId + ": " + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
 
 
         //check source wallet is active or not
-        if (!walletSource.get().getActive())
-            deActiveWallet(walletId + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+        if (!walletSource.getActive())
+            deActiveWallet(walletSource.getWalletNumber() + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
 
-        //check destination wallet is existed or not
-        if (!walletDestination.isPresent())
-            notFoundWallet(walletNumberDestination + ": " + errorMessages.getMESSAGE_NOT_FOUND_WALLET());
 
 
         //check destination wallet is active or not
-        if (!walletDestination.get().getActive())
-            deActiveWallet(walletNumberDestination + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
+        if (!walletDestination.getActive())
+            deActiveWallet(walletDestination.getWalletNumber() + ": " + errorMessages.getMESSAGE_DE_ACTIVE_WALLET());
 
         //check wallets' numbers won't be equal
-        if (Objects.equals(walletSource.get().getWalletNumber() , walletDestination.get().getWalletNumber()))
+        if (Objects.equals(walletSource.getWalletNumber() , walletDestination.getWalletNumber()))
             throw new WalletNumberException(errorMessages.getMESSAGE_WALLETS_NUMBERS_COULD_NOT_EQUAL());
 
 
@@ -256,19 +237,17 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         checkAmount(amount);
 
         //calculate balance form source wallet
-        Double balance = calculateWithdraw.calculateWithdraw(walletSource.get().getBalance(), amount);
+        Double balance = calculateWithdraw.calculateWithdraw(walletSource.getBalance(), amount);
 
         //balance of source wallet after calculating will check, if it will be less than zero, user could not transfer money
         checkBalance(balance);
 
 
+        walletSource.setBalance(balance);
 
-        Wallet walletS = walletSource.get();
-        walletS.setBalance(balance);
-        Wallet walletD = walletDestination.get();
-        walletD.setBalance(walletD.getBalance() + amount);
+        walletDestination.setBalance(walletDestination.getBalance() + amount);
 
-        return Arrays.asList(walletS, walletD);
+        return Arrays.asList(walletSource, walletDestination);
 
     }
 
@@ -336,6 +315,15 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
             throw new AmountException(errorMessages.getMESSAGE_WALLET_BALANCE());
     }
 
+    public Optional<Wallet> findWalletByNumber(String walletNumber){
+        Optional<Wallet> wallet = walletRepository.findByWalletNumber(walletNumber);
+
+        if (!wallet.isPresent())
+            notFoundWallet(errorMessages.getMESSAGE_NOT_FOUND_WALLET());
+
+        return wallet;
+    }
+
     private void notFoundWallet(String message) {
         throw new NotFoundException(message);
     }
@@ -343,6 +331,8 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     private void deActiveWallet(String message) {
         throw new WalletActiveException(message);
     }
+
+
 
 
 }

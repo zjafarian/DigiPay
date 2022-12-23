@@ -161,12 +161,5 @@ public class UserServiceImpl extends BaseServiceImpl<User,Long> implements UserS
         return userRepository.findAllById(ids);
     }
 
-    public Role findRole(Long roleId) {
 
-        Optional<Role> role = roleRepository.findById(roleId);
-        if (!role.isPresent())
-            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_ROLE());
-
-        return role.get();
-    }
 }
