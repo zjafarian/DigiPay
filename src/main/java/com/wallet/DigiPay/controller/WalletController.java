@@ -11,6 +11,7 @@ import com.wallet.DigiPay.services.impls.WalletServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,16 +41,10 @@ public class WalletController {
     public ResponseEntity<ResponseMessage<?>> addWallet(@Valid @RequestBody WalletDto walletDto)
             throws NullPointerException, AmountException {
 
-        User user = walletService.getUser(walletDto.getUserId());
-
 
         Wallet wallet = walletService.generateWallet(walletDto);
         wallet.setWalletNumber(UUID.randomUUID().toString());
-        wallet.setActive(true);
-        wallet.setUser(user);
-
-
-        walletService.save(wallet);
+        wallet = walletService.save(wallet);
 
 
         ResponseMessage responseMessage = ResponseMessage
@@ -64,8 +59,7 @@ public class WalletController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseMessage<?>> getWallet(@PathVariable Long id) throws NotFoundException {
 
-        Optional<Wallet> wallet = walletService.findById(id);
-        WalletDto walletDto = walletService.generateWalletDto(wallet.get());
+        WalletDto walletDto = walletService.generateWalletDto(walletService.findById(id).get());
 
 
         ResponseMessage responseMessage = ResponseMessage
@@ -82,8 +76,7 @@ public class WalletController {
     @PutMapping
     public ResponseEntity<ResponseMessage<?>> updateWallet(@Valid @RequestBody WalletDto walletDto) {
 
-        Wallet wallet = walletService.update(walletService.generateWallet(walletDto));
-        walletDto = walletService.generateWalletDto(wallet);
+        walletDto = walletService.generateWalletDto(walletService.update(walletService.generateWallet(walletDto)));
 
 
         ResponseMessage responseMessage = ResponseMessage
@@ -97,6 +90,7 @@ public class WalletController {
 
 
     @PutMapping("/deposit")
+    @Transactional
     public ResponseEntity<ResponseMessage<?>> depositWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
             throws NotFoundException,
@@ -105,27 +99,18 @@ public class WalletController {
             CartNumberException,
             TransactionException {
 
-        Wallet walletFind = walletService.findById(transactionRequestDto.getWalletId()).get();
 
+        //do transaction
+        Transaction transaction = transactionService.save(walletService.deposit(transactionRequestDto));
 
-        Wallet wallet = walletService
-                .depositWallet(transactionRequestDto.getAmount(),
-                        walletFind);
-
-        transactionRequestDto.setSource(wallet.getWalletNumber());
-
-        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet), transactionRequestDto).get(0);
-
-
+        //if result was success from result of IGP, status of transaction will change to success and update
         transaction.setTransactionStatus(TransactionStatus.Success);
 
-        transaction = transactionService.save(transaction);
-
-
+        //update transaction
         transactionService.update(transaction);
-        walletService.update(wallet);
 
-        WalletDto walletDto = walletService.generateWalletDto(wallet);
+
+        WalletDto walletDto = walletService.generateWalletDto(walletService.update(walletService.returnWallet(transaction)));
 
 
         ResponseMessage responseMessage = ResponseMessage
@@ -140,6 +125,7 @@ public class WalletController {
 
 
     @PutMapping("/withdraw")
+    @Transactional
     public ResponseEntity<ResponseMessage<?>> withdrawWallet
             (@Valid @RequestBody TransactionRequestDto transactionRequestDto)
             throws NotFoundException,
@@ -149,26 +135,18 @@ public class WalletController {
             CartNumberException,
             TransactionException {
 
-        Wallet walletFind = walletService.findById(transactionRequestDto.getWalletId()).get();
 
+        //do transaction
+        Transaction transaction = transactionService.save(walletService.withdraw(transactionRequestDto));
 
-        Wallet wallet = walletService
-                .withdrawWallet(transactionRequestDto.getAmount(),
-                        walletFind);
-
-        transactionRequestDto.setDestination(wallet.getWalletNumber());
-
-        Transaction transaction = walletService.createTransaction(Arrays.asList(wallet), transactionRequestDto).get(0);
-
-
-        transaction = transactionService.save(transaction);
-
+        //if result was success from result of IGP, status of transaction will change to success and update
         transaction.setTransactionStatus(TransactionStatus.Success);
 
+        //update transaction
         transactionService.update(transaction);
-        walletService.update(wallet);
 
-        WalletDto walletDto = walletService.generateWalletDto(wallet);
+
+        WalletDto walletDto = walletService.generateWalletDto(walletService.update(walletService.returnWallet(transaction)));
 
 
         ResponseMessage responseMessage = ResponseMessage
@@ -192,27 +170,30 @@ public class WalletController {
             TransactionException,
             WalletNumberException {
 
-        Wallet walletSource = walletService.findById(transactionRequestDto.getWalletId()).get();
-        Wallet walletDestination = walletService.findWalletByNumber(transactionRequestDto.getDestination()).get();
+        //create transactions
+        List<Transaction> transactions = walletService.walletToWallet(transactionRequestDto);
 
-
-        List<Wallet> wallets = walletService.transferFromWalletToWallet(transactionRequestDto.getAmount(),
-                Arrays.asList(walletSource, walletDestination));
-
-        transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
-
-        List<Transaction> transactions = walletService.createTransaction(wallets, transactionRequestDto);
-
+        //do transactions
         transactions.stream().forEach(transaction -> transactionService.save(transaction));
+
+
         transactions.stream().forEach(transaction -> {
+
+            //if result was success from result of IGP, status of transaction will change to success and update
             transaction.setTransactionStatus(TransactionStatus.Success);
+
+            //update transaction
             transactionService.update(transaction);
         });
 
-        wallets.stream().forEach(wallet -> walletService.update(wallet));
+
+        //update wallets
+        transactions.stream().forEach(transaction -> {
+            walletService.update(walletService.findById(transaction.getWallet().getId()).get());
+        });
 
 
-        WalletDto walletDto = walletService.generateWalletDto(wallets.get(0));
+        WalletDto walletDto = walletService.generateWalletDto(walletService.returnWallet(transactions.get(0)));
 
 
         ResponseMessage responseMessage = ResponseMessage
@@ -230,10 +211,7 @@ public class WalletController {
     public ResponseEntity<ResponseMessage<?>> changeWalletActivity(@RequestBody WalletDto walletDto) {
 
 
-        Wallet wallet = walletService.generateWallet(walletDto);
-        wallet = walletService.changeActiveWallet(wallet);
-
-        wallet = walletService.update(wallet);
+        Wallet wallet = walletService.update(walletService.changeActiveWallet(walletDto));
 
         walletDto = walletService.generateWalletDto(wallet);
 

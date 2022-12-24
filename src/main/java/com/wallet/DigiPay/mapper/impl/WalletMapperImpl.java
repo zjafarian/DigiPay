@@ -34,7 +34,12 @@ public class WalletMapperImpl extends BaseMapperImpl<WalletDto, Wallet> implemen
             wallet.setActive(true);
         }
 
-        wallet.setActive(walletDto.getIsActive());
+        if (walletDto.getIsActive() == null)
+            wallet.setActive(true);
+        else wallet.setActive(walletDto.getIsActive());
+
+
+
 
 
         return wallet;

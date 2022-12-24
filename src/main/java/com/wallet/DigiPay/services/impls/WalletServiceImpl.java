@@ -19,6 +19,7 @@ import com.wallet.DigiPay.repositories.WalletRepository;
 import com.wallet.DigiPay.base.baseRepository.BaseRepository;
 import com.wallet.DigiPay.services.WalletService;
 import com.wallet.DigiPay.base.baseServide.impls.BaseServiceImpl;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -64,38 +65,44 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         this.errorMessages = errorMessages;
     }
 
+    @Override
+    protected BaseRepository<Wallet, Long> getBaseRepository() {
+        return walletRepository;
+    }
+
 
     public Wallet generateWallet(WalletDto walletDto) {
-        return walletMapper.mapToObject(walletDto);
+        User user = findUser(walletDto.getUserId()).get();
+
+        Wallet wallet = walletMapper.mapToObject(walletDto);
+
+
+        wallet.setUser(user);
+
+        return wallet;
     }
 
 
     public WalletDto generateWalletDto(Wallet wallet) {
 
         WalletDto walletDto = walletMapper.mapToDTO(wallet);
-        Optional<User> user = userRepository.findById(wallet.getUser().getId());
-
-        if (!user.isPresent())
-            throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
-
+        findUser(wallet.getUser().getId());
 
         return walletDto;
     }
 
-    public User getUser(Long userId) {
+
+
+    @NotNull
+    private Optional<User> findUser(Long userId) {
         Optional<User> user = userRepository.findById(userId);
 
         if (!user.isPresent())
             throw new NotFoundException(errorMessages.getMESSAGE_NOT_FOUND_USER());
 
-        return user.get();
-
+        return user;
     }
 
-    @Override
-    protected BaseRepository<Wallet, Long> getBaseRepository() {
-        return walletRepository;
-    }
 
     @Override
     public List<Wallet> findAll() {
@@ -160,10 +167,10 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
         return super.findAllById(longs);
     }
 
-    //Deposit money from the bank to the wallet
-    @Override
-    public Wallet depositWallet(Double amount, Wallet wallet) {
 
+    //Deposit money from the bank to the wallet
+
+    public Wallet depositWallet(Double amount, Wallet wallet) {
 
 
         if (amount < 0)
@@ -181,7 +188,7 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
     }
 
-    @Override
+
     public Wallet withdrawWallet(Double amount, Wallet wallet) {
 
 
@@ -201,9 +208,9 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
     }
 
     //when user wants to transfer money from a wallet to another wallet
-    @Override
+
     public List<Wallet> transferFromWalletToWallet(Double amount,
-                                                 List<Wallet> wallets) {
+                                                   List<Wallet> wallets) {
 
 
         //find wallet source with walletId
@@ -250,11 +257,71 @@ public class WalletServiceImpl extends BaseServiceImpl<Wallet, Long> implements 
 
     }
 
-    @Override
-    public Wallet changeActiveWallet(Wallet wallet) {
-       wallet.setActive(!wallet.getActive());
-       return wallet;
+
+    public Wallet changeActiveWallet(WalletDto wallet) {
+        Wallet walletFind = findById(wallet.getId()).get();
+        walletFind.setActive(wallet.getIsActive());
+
+
+
+        return walletFind;
     }
+
+
+
+    public Transaction deposit(TransactionRequestDto transactionRequestDto){
+
+        Wallet walletFind = findById(transactionRequestDto.getWalletId()).get();
+
+        Wallet wallet = depositWallet(transactionRequestDto.getAmount(), walletFind);
+
+        transactionRequestDto.setSource(wallet.getWalletNumber());
+
+        walletRepository.save(wallet);
+
+        return createTransaction(Arrays.asList(wallet), transactionRequestDto).get(0);
+
+    }
+
+
+    public Transaction withdraw(TransactionRequestDto transactionRequestDto){
+        Wallet walletFind = findById(transactionRequestDto.getWalletId()).get();
+
+
+        Wallet wallet = withdrawWallet(transactionRequestDto.getAmount(), walletFind);
+
+        transactionRequestDto.setDestination(wallet.getWalletNumber());
+
+
+
+        return createTransaction(Arrays.asList(wallet), transactionRequestDto).get(0);
+    }
+
+
+    public List<Transaction> walletToWallet(TransactionRequestDto transactionRequestDto){
+        Wallet walletSource = findById(transactionRequestDto.getWalletId()).get();
+        Wallet walletDestination = findWalletByNumber(transactionRequestDto.getDestination()).get();
+
+
+        List<Wallet> wallets = transferFromWalletToWallet(transactionRequestDto.getAmount(),
+                Arrays.asList(walletSource, walletDestination));
+
+        transactionRequestDto.setSource(wallets.get(0).getWalletNumber());
+
+        return createTransaction(wallets, transactionRequestDto);
+
+    }
+
+
+    public Wallet returnWallet(Transaction transaction){
+
+        Wallet wallet = findById(transaction.getWallet().getId()).get();
+
+        return walletRepository.save(wallet);
+    }
+
+
+
 
 
     //create transactions with wallets and transactionRequestDto
